@@ -127,7 +127,6 @@ summary::-webkit-details-marker{display:none}
   </div>
   <button class="lnk" id="aswitch"></button>
   <button class="lnk" id="aforgot">Mot de passe oublié ?</button>
-  <button class="lnk" id="askip">Mode rapide (sans mot de passe)</button>
 </div>
 <section id="onb" hidden>
   <div style="font-size:44px" aria-hidden="true">🧭</div>
@@ -141,11 +140,13 @@ summary::-webkit-details-marker{display:none}
     <div class="row" style="margin-top:10px"><div><label for="on_fq">Séances par semaine</label><select id="on_fq"><option value="2">1 à 2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5 ou plus</option></select></div><div><label for="on_exp">Expérience</label><select id="on_exp"><option value="d">Débutant (moins de 6 mois)</option><option value="i">Intermédiaire</option><option value="a">Avancé</option></select></div></div>
   </div>
   <div class="card">
-    <h2>Tests de forme (facultatif)</h2>
-    <p class="hint" style="margin-top:0">Laisse vide ce que tu ne sais pas encore : tu pourras refaire ton bilan plus tard (Corps → Compte).</p>
-    <div class="row" style="margin-top:10px"><div><label for="on_qpu">Pompes max (rép.)</label><input id="on_qpu" type="number" inputmode="numeric"></div><div><label for="on_qtr">Tractions max (rép.)</label><input id="on_qtr" type="number" inputmode="numeric"></div></div>
-    <div class="row" style="margin-top:10px"><div><label for="on_qgi">Gainage max (s)</label><input id="on_qgi" type="number" inputmode="numeric"></div><div><label for="on_qsq">Squat max (kg)</label><input id="on_qsq" type="number" inputmode="decimal" min="0"></div></div>
-    <div style="margin-top:10px"><label for="on_qbp">Développé couché max (kg)</label><input id="on_qbp" type="number" inputmode="decimal" min="0"></div>
+    <details>
+      <summary>Tests de forme (optionnel, pour calculer ton niveau)</summary>
+      <p class="hint" style="margin-top:8px">Laisse vide ce que tu ne sais pas encore : tu pourras refaire ton bilan plus tard (Corps → Compte).</p>
+      <div class="row" style="margin-top:10px"><div><label for="on_qpu">Pompes max (rép.)</label><input id="on_qpu" type="number" inputmode="numeric"></div><div><label for="on_qtr">Tractions max (rép.)</label><input id="on_qtr" type="number" inputmode="numeric"></div></div>
+      <div class="row" style="margin-top:10px"><div><label for="on_qgi">Gainage max (s)</label><input id="on_qgi" type="number" inputmode="numeric"></div><div><label for="on_qsq">Squat max (kg)</label><input id="on_qsq" type="number" inputmode="decimal" min="0"></div></div>
+      <div style="margin-top:10px"><label for="on_qbp">Développé couché max (kg)</label><input id="on_qbp" type="number" inputmode="decimal" min="0"></div>
+    </details>
   </div>
   <button class="btn" id="onbgo">Démarrer</button>
   <p class="err" id="onerr" role="alert" tabindex="-1"></p>
@@ -180,7 +181,8 @@ summary::-webkit-details-marker{display:none}
         <div style="margin-top:10px"><label for="d">Date</label><input id="d" type="date"></div>
       </details>
       <button class="btn" id="add">Enregistrer la série</button>
-      <button class="btn alt" id="newm">Exercice hors programme</button>
+      <button class="btn alt" id="newm">+ Exercice hors programme</button>
+  <div id="newmw" hidden style="margin-top:8px"><input id="newmin" list="mlist" placeholder="Nom de la machine"><datalist id="mlist"></datalist><button class="btn" id="newmok" style="margin-top:6px">Ajouter</button></div>
       <div class="chips" style="margin-top:10px"><button type="button" data-rest="60">Repos 1:00</button><button type="button" data-rest="90">1:30</button><button type="button" data-rest="120">2:00</button><button type="button" data-rest="180">3:00</button></div>
       <div class="tm" id="tmv" hidden aria-live="polite"></div>
       <button class="btn alt" id="tstop" hidden>Arrêter le chrono</button>
@@ -226,7 +228,16 @@ summary::-webkit-details-marker{display:none}
     <div id="lout" style="margin-top:12px"></div>
   </div>
 </section>
-<section id="progres" hidden><div id="pgal"></div></section>
+<section id="progres" hidden>
+  <div class="seg" id="progsseg" role="group" aria-label="Filtrer les courbes">
+    <button type="button" data-v="all" aria-pressed="true">Tout</button>
+    <button type="button" data-v="muscu" aria-pressed="false">🏋️ Muscu</button>
+    <button type="button" data-v="cardio" aria-pressed="false">🏃 Cardio</button>
+    <button type="button" data-v="perf" aria-pressed="false">💪 Perf</button>
+    <button type="button" data-v="corps" aria-pressed="false">⚖️ Corps</button>
+  </div>
+  <div id="pgal"></div>
+</section>
 <section id="nut" hidden>
   <div class="card">
     <h2>Ton profil</h2>
@@ -288,8 +299,12 @@ summary::-webkit-details-marker{display:none}
     <p class="hint" id="who" style="margin-top:0"></p>
     <p class="hint" style="margin-top:0">Les données restent sur cet appareil. Exporte-les de temps en temps pour ne rien perdre.</p>
     <button class="btn alt" id="exp">Copier mes données</button>
+    <button class="btn alt" id="dl">Télécharger ma sauvegarde</button>
     <button class="btn alt" id="imp">Restaurer depuis une sauvegarde</button>
+    <button class="btn alt" id="install" hidden>Installer l'application</button>
     <button class="btn alt" id="onredo">Refaire mon bilan de départ</button>
+    <button class="btn alt" id="chpw">Changer mon mot de passe</button>
+    <button class="btn alt" id="delacc" style="color:#e5533d">Supprimer mon compte</button>
     <button class="btn alt" id="logout">Se déconnecter</button>
   </div>
 </section>
@@ -302,6 +317,7 @@ summary::-webkit-details-marker{display:none}
   <button data-t="corps"><i aria-hidden="true">⚖️</i>Corps</button>
 </nav>
 <div id="toast" class="toast" role="status" aria-live="polite" tabindex="-1" hidden></div>
+<div id="upbar" class="toast" role="status" aria-live="polite" hidden style="background:var(--acc);color:var(--accink);bottom:calc(140px+env(safe-area-inset-bottom,0px))">Nouvelle version disponible. <button id="upbtn" style="background:none;border:0;color:inherit;font:inherit;font-weight:800;text-decoration:underline;cursor:pointer;padding:0">Recharger</button></div>
 <script>
 const BASE="suivi-salle-v1";let KEY=BASE;
 const DEF=["Presse à cuisses","Leg extension","Leg curl couché","Développé couché (machine)","Pec deck","Tirage vertical","Rowing assis","Développé épaules (machine)","Curl biceps","Triceps poulie","Abducteurs","Adducteurs","Mollets","Smith machine"];
@@ -414,7 +430,8 @@ $("add").onclick=()=>{
   if(pm>0&&w>pm){const k=weekKey();S.recW=S.recW||{};S.recW[k]=(S.recW[k]||0)+1}
   save();S.lastM=curM;if($("pm"))$("pm").value=curM;renderSeance();renderProgres();
   toast(pm>0&&w>pm?"🏆 Nouveau record : "+fn(w)+" kg !":"Série enregistrée",pm>0&&w>pm);$("rs").value="";$("rpe").value="";rest(restSec)};
-$("newm").onclick=()=>{const n=(prompt("Nom de la machine ?")||"").trim();if(!n)return;if(!S.machines.includes(n))S.machines.push(n);save();curM=n;$("lm").textContent=n;fill($("cmach"));openLog();upLast()};
+$("newm").onclick=()=>{$("newmw").hidden=!$("newmw").hidden;if(!$("newmw").hidden){$("mlist").innerHTML=mlist().map(m=>`<option value="${esc(m)}">`).join("");$("newmin").value="";$("newmin").focus()}};
+$("newmok").onclick=()=>{const n=$("newmin").value.trim();if(!n)return;if(!S.machines.includes(n))S.machines.push(n);save();curM=n;$("lm").textContent=n;fill($("cmach"));if($("pm"))$("pm").value=n;openLog();upLast();$("newmw").hidden=true};
 $("dayL").onclick=e=>{const ed=e.target.dataset.edit;
   if(ed){const x=S.sessions.find(q=>q.id===ed);
     if(x){curM=x.m;$("lm").textContent=x.m;$("w").value=x.w;$("r").value=x.r;$("s").value=x.s;$("rs").value=x.rs?x.rs.join("/"):"";$("rpe").value=x.rpe||"";$("d").value=x.d;editId=ed;$("logw").hidden=false;$("add").textContent="Mettre à jour la série";$("w").focus({preventScroll:true});window.scrollTo(0,0)}return}
@@ -531,20 +548,25 @@ function pmCharts(){
    +`<h3 style="margin:6px 0 2px;font-size:13px;color:var(--mute)">Volume par séance (kg)</h3>${chart(vol,null,120)}`}
 function renderProgres(){
   let x="";
+  /* Vue d'ensemble : une barre par machine */
+  {const ms=mlist().filter(m=>S.sessions.some(s=>s.m===m));
+   if(ms.length){const rows=ms.map(m=>{const L=S.sessions.filter(s=>s.m===m),rec=Math.max(...L.map(s=>s.w)),last=L.slice().sort((a,b)=>b.d.localeCompare(a.d)||b.t-a.t)[0].w,pct=rec?Math.round(last/rec*100):0;
+     return `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px"><b>${esc(m)}</b><span>${fn(last)} / ${fn(rec)} kg</span></div><div class="bar"><i style="width:${Math.max(4,pct)}%"></i></div></div>`}).join("");
+     x+=`<div class="card pgcard" data-cat="muscu"><h2>📊 Vue d'ensemble</h2>${rows}<p class="hint" style="margin-top:6px">Dernière charge / record par machine.</p></div>`}}
   /* Muscu : 3 courbes par machine */
   const ms=mlist().filter(m=>S.sessions.some(s=>s.m===m));
-  if(!ms.length)x+='<div class="card"><h2>🏋️ Muscu</h2><p class="empty">Enregistre une série dans Séance : tes courbes apparaîtront ici.</p></div>';
+  if(!ms.length)x+='<div class="card pgcard" data-cat="muscu"><h2>🏋️ Muscu</h2><p class="empty">Enregistre une série dans Séance : tes courbes apparaîtront ici.</p></div>';
   else{
     const cur=ms.includes(S.lastM)?S.lastM:ms[0];
-    x+=`<div class="card"><h2>🏋️ Muscu</h2><label for="pm">Machine</label><select id="pm">${ms.map(m=>`<option${m===cur?" selected":""}>${esc(m)}</option>`).join("")}</select><div id="pmcharts" style="margin-top:12px"></div></div>`}
+    x+=`<div class="card pgcard" data-cat="muscu"><h2>🏋️ Muscu</h2><label for="pm">Machine</label><select id="pm">${ms.map(m=>`<option${m===cur?" selected":""}>${esc(m)}</option>`).join("")}</select><div id="pmcharts" style="margin-top:12px"></div></div>`}
   /* Régularité : séances par semaine */
   {const w={};S.sessions.forEach(s=>{const k=weekKeyOf(s.d);w[k]=(w[k]||0)+1});
    const pts=Object.keys(w).sort().map(k=>({x:k,y:w[k]}));
-   x+=`<div class="card"><h2>📅 Régularité — séances par semaine</h2>${chart(pts,null,110)}</div>`}
+   x+=`<div class="card pgcard" data-cat="muscu"><h2>📅 Régularité — séances par semaine</h2>${chart(pts,null,110)}</div>`}
   /* Cardio : minutes par semaine + une courbe par activité */
   {const w={};(S.cardio||[]).forEach(c=>{const k=weekKeyOf(c.d);w[k]=(w[k]||0)+(c.min||0)});
    const wk=Object.keys(w).sort().map(k=>({x:k,y:Math.round(w[k])}));
-   x+=`<div class="card"><h2>🏃 Cardio — minutes par semaine</h2>${chart(wk,null,110)}`;
+   x+=`<div class="card pgcard" data-cat="cardio"><h2>🏃 Cardio — minutes par semaine</h2>${chart(wk,null,110)}`;
    const acts=[...new Set((S.cardio||[]).map(c=>c.a))];
    if(acts.length)x+=acts.map(a=>{const L=(S.cardio||[]).filter(c=>c.a===a),jump=a===JUMP;
      const pts=byDayBest(L,c=>jump?c.j:c.v);
@@ -554,15 +576,15 @@ function renderProgres(){
    x+="</div>"}
   /* Tests de performance : une courbe par test */
   {const names=[...new Set(T().map(t=>t.n))];
-   if(names.length)x+=`<div class="card"><h2>💪 Performance</h2>${names.map(n=>{const L=T().filter(t=>t.n===n),d=TDs().find(q=>q[0]===n)||[n,"",1],up=d[2];
+   if(names.length)x+=`<div class="card pgcard" data-cat="perf"><h2>💪 Performance</h2>${names.map(n=>{const L=T().filter(t=>t.n===n),d=TDs().find(q=>q[0]===n)||[n,"",1],up=d[2];
      const pts=byDayBest(L,t=>t.v),rec=up?Math.max(...L.map(t=>t.v)):Math.min(...L.map(t=>t.v));
      return `<h3 style="margin:10px 0 2px;font-size:13px;color:var(--mute)">${esc(n)} · record ${fn(rec)} ${d[1]}</h3>${chart(pts,null,110)}`}).join("")}</div>`}
   /* Corps : poids */
   {const L=S.body.slice().sort((a,b)=>a.d.localeCompare(b.d));
-   x+=`<div class="card"><h2>⚖️ Poids (kg)</h2>${L.length>1?chart(L.map(q=>({x:q.d,y:q.w})),null,120):'<p class="empty">Deux pesées au minimum pour la courbe.</p>'}</div>`}
+   x+=`<div class="card pgcard" data-cat="corps"><h2>⚖️ Poids (kg)</h2>${L.length>1?chart(L.map(q=>({x:q.d,y:q.w})),null,120):'<p class="empty">Deux pesées au minimum pour la courbe.</p>'}</div>`}
   /* Mensurations : une courbe par mesure */
   {const ks=[...new Set(mens().map(q=>q.k))];
-   if(ks.length)x+=`<div class="card"><h2>📏 Mensurations (cm)</h2>${ks.map(k=>{const L=mens().filter(q=>q.k===k);
+   if(ks.length)x+=`<div class="card pgcard" data-cat="corps"><h2>📏 Mensurations (cm)</h2>${ks.map(k=>{const L=mens().filter(q=>q.k===k);
      return `<h3 style="margin:10px 0 2px;font-size:13px;color:var(--mute)">${esc(k)} · dernière ${fn(L.sort((a,b)=>b.d.localeCompare(a.d))[0].v)} cm</h3>${chart(byDayBest(L,q=>q.v),null,110)}`}).join("")}</div>`}
   $("pgal").innerHTML=x;
   if($("pm")){$("pm").onchange=pmCharts;pmCharts()}}
@@ -611,7 +633,9 @@ function renderNut(){
    +`<li style="display:block"><b>Lipides</b><small>Hormones et satiété, à ne pas couper. Huile d’olive, poissons, oléagineux. ≈ ${Math.round(Lp)} g/jour, minimum ${fn(.8*w)} g.</small></li>`
    +`<li style="display:block"><b>Calories</b><small>Un déficit ou un surplus léger bat toujours un extrême : ${gl==="fat"?"−15 %":"+"+Math.round(G[1]*100)+" %"} suffit.</small></li></ul>`
    +'<h2 style="margin-top:14px">Exemple : que trouve-t-on dans 100 g ?</h2>'
-   +`<label for="food">Choisis un aliment</label><select id="food" aria-label="Choisir un aliment pour voir ses nutriments pour 100 g">${Object.keys(FOODS).map(k=>`<option>${esc(k)}</option>`).join("")}</select><div id="fout" style="margin-top:12px"></div></div>`;
+   +`<input id="foodq" type="search" placeholder="Chercher un aliment…" style="margin-bottom:8px" aria-label="Chercher un aliment" oninput="filterFood()">`
+   +`<div class="chips" style="flex-wrap:wrap;margin-bottom:8px"><button type="button" class="sc" data-food="Poulet (sans peau)">Poulet</button><button type="button" class="sc" data-food="Riz cuit">Riz</button><button type="button" class="sc" data-food="Œuf">Œuf</button><button type="button" class="sc" data-food="Bœuf (steak 5 %)">Bœuf</button></div>`
+   +`<select id="food" aria-label="Choisir un aliment pour voir ses nutriments pour 100 g">${Object.keys(FOODS).map(k=>`<option>${esc(k)}</option>`).join("")}</select><div id="fout" style="margin-top:12px"></div></div>`;
   const micro=[["Fer",(F&&a<=50?16:11)+" mg/j",F&&a<=50?"Besoins plus élevés chez les femmes avant la ménopause. Viandes, lentilles, avec de la vitamine C.":"Viandes, légumineuses, avec de la vitamine C."],["Calcium",(a<25?1000:950)+" mg/j","Laitages, eaux minéralisées, légumes verts : os et contractions musculaires."],["Vitamine D","15 µg/j","Poissons gras, œufs, soleil. Un dosage sanguin dit si un complément est utile."],["Fibres","≥ 30 g/j","Fruits, légumes, légumineuses, céréales complètes : satiété et digestion."]];
   x+='<div class="card"><h2>L’essentiel des micronutriments</h2><ul>'+micro.map(q=>`<li style="display:block"><b>${q[0]}</b><small>${q[2]} Repère : <b>${q[1]}</b>.</small></li>`).join("")+"</ul>"+ex("Repères généraux pour adultes en bonne santé (EFSA, ANSES, OMS). Les besoins réels varient.")+"</div>";
   x+='<div class="card"><h2>💧 Eau</h2><div id="cwa"></div></div>';
@@ -623,6 +647,8 @@ function renderFood(){const k=$("food")?$("food").value:"Bœuf (steak 5 %)",F=FO
    +(F[4]?`<p class="hint">À retenir : <b>${F[4]}</b>.</p>`:"")
    +(F[1]>5&&nutP?`<p class="hint">Couvre <b>${fn(F[1]/nutP*100)} %</b> de tes protéines du jour (${nutP} g).</p>`:"")}
 document.addEventListener("change",e=>{if(e.target.id==="food")renderFood()});
+function filterFood(){const norm=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/œ/g,"oe").replace(/æ/g,"ae");const q=norm(($("foodq")||{}).value||"");[...$("food").options].forEach(o=>o.hidden=q? !norm(o.value).includes(q):false)}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-food]");if(!b)return;$("food").value=b.dataset.food;renderFood()});
 /* ===== Eau du jour ===== */
 const WTR=()=>S.water=S.water||{};
 function renderWater(){const d=today(),n=WTR()[d]||0,rec=Math.ceil((S.profile.hyd||2.5)*1000/250);
@@ -721,6 +747,9 @@ document.querySelectorAll("#perfseg button").forEach(b=>b.onclick=()=>{perfView=
   document.querySelectorAll("#perfseg button").forEach(x=>x.setAttribute("aria-pressed",x===b));go("perf")});
 document.querySelectorAll("#corpsseg button").forEach(b=>b.onclick=()=>{corpsView=b.dataset.v;
   document.querySelectorAll("#corpsseg button").forEach(x=>x.setAttribute("aria-pressed",x===b));go("corps")});
+document.querySelectorAll("#progsseg button").forEach(b=>b.onclick=()=>{const v=b.dataset.v;
+  document.querySelectorAll("#progsseg button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+  document.querySelectorAll(".pgcard").forEach(c=>{c.hidden=v!=="all"&&c.dataset.cat!==v})});
 function all(){fill($("cmach"));fillT();renderSeance();renderProgres();renderBody();renderCardio();renderTests();renderMens();openNut();prefillCalc()}
 function go(t){
   document.querySelectorAll(".tabbar button").forEach(x=>{x.setAttribute("aria-current",x.dataset.t===t?"page":"false")});
@@ -755,7 +784,9 @@ $("toast").onclick=()=>{if(toast.u&&UN){S=JSON.parse(UN);S.profile=S.profile||{}
 $("toast").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("toast").onclick()}};
 /* ===== Sauvegarde ===== */
 $("exp").onclick=async()=>{S.lastBackup=Date.now();save();const t=JSON.stringify(S);try{const f=new File([t],"suivi-salle-"+today()+".json",{type:"application/json"});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(e){if(e.name==="AbortError")return}try{await navigator.clipboard.writeText(t);toast("⚠️ "+"Données copiées. Colle-les dans une note pour les garder.")}catch(e){prompt("Copie ce texte :",t)}};
-$("imp").onclick=()=>{const t=prompt("Colle ta sauvegarde ici :");if(!t)return;try{const o=JSON.parse(t);if(!Array.isArray(o.sessions)||!Array.isArray(o.body))throw 0;const fresh={sessions:[],body:[],machines:DEF.slice(),profile:{}};S=Object.assign(fresh,o);S.profile=S.profile||{};S.machines=Array.isArray(S.machines)?S.machines:DEF.slice();save();all();toast("⚠️ "+"Données restaurées.")}catch(e){toast("⚠️ "+"Sauvegarde invalide.")}};
+$("dl").onclick=()=>{S.lastBackup=Date.now();save();const t=JSON.stringify(S);const b=new Blob([t],{type:"application/json"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download="suivi-salle-"+today()+".json";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);toast("Sauvegarde téléchargée")};
+$("chpw").onclick=async()=>{const old=prompt("Mot de passe actuel :");if(old===null)return;const a=accs()[localStorage.getItem(SK)];if(!a||(!a.nopw&&a.hash!==await hashPw(old,a.salt))){toast("⚠️ "+"Mot de passe actuel incorrect.");return}const nw=prompt("Nouveau mot de passe (4 car. min.) :");if(!nw||nw.length<4){toast("⚠️ "+"Mot de passe trop court.");return}const salt=a.salt||uid()+uid();a.salt=salt;a.hash=await hashPw(nw,salt);a.nopw=0;saveAccs(accs());toast("Mot de passe changé")};
+$("delacc").onclick=async()=>{const n=localStorage.getItem(SK);if(!n||!confirm("Supprimer définitivement le compte « "+n+" » et toutes ses données ?"))return;if(!confirm("Dernière confirmation : cette action est irréversible."))return;const A=accs();delete A[n];saveAccs(A);try{localStorage.removeItem(BASE+":"+n)}catch(e){}try{localStorage.removeItem(SK)}catch(e){}creating=false;document.body.classList.add("locked");authView();toast("Compte supprimé")};$("imp").onclick=()=>{const t=prompt("Colle ta sauvegarde ici :");if(!t)return;try{const o=JSON.parse(t);if(!Array.isArray(o.sessions)||!Array.isArray(o.body))throw 0;const fresh={sessions:[],body:[],machines:DEF.slice(),profile:{}};S=Object.assign(fresh,o);S.profile=S.profile||{};S.machines=Array.isArray(S.machines)?S.machines:DEF.slice();save();all();toast("⚠️ "+"Données restaurées.")}catch(e){toast("⚠️ "+"Sauvegarde invalide.")}};
 /* ===== Comptes (local, sur cet appareil) ===== */
 const AK="sg-accounts",SK="sg-session";
 const accs=()=>{try{return JSON.parse(localStorage.getItem(AK)||"{}")}catch(e){return{}}};
@@ -804,7 +835,6 @@ async function submitAuth(){
 $("ago").onclick=submitAuth;
 ["au","ap","ap2"].forEach(i=>$(i).onkeydown=e=>{if(e.key==="Enter")submitAuth()});
 $("aswitch").onclick=()=>{creating=!creating;authView()};
-$("askip").onclick=()=>{const d=$("au").value.trim()||"Moi",n=d.toLowerCase(),A=accs();if(A[n]&&!A[n].nopw){$("aerr").textContent="Ce compte a un mot de passe.";return}if(!A[n]){A[n]={name:d,salt:"",sx:creating?$("asx").value:"n",hash:"",nopw:1};saveAccs(A)}try{localStorage.setItem(SK,n)}catch(e){}startApp(n)};
 $("aforgot").onclick=()=>{
   const n=$("au").value.trim().toLowerCase(),A=accs();
   if(!A[n]){$("aerr").textContent="Entre d’abord ton prénom pour réinitialiser ce compte.";return}
@@ -817,8 +847,18 @@ try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}ca
 authView();
 try{const ss=localStorage.getItem(SK);if(ss&&accs()[ss])startApp(ss)}catch(e){}
 /* ===== Application installable + hors-ligne ===== */
+let deferredInstall=null;
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstall=e;$("install").hidden=false});
+$("install").onclick=async()=>{if(!deferredInstall){toast("⚠️ "+"Installation déjà proposée par le navigateur.");return}deferredInstall.prompt();const r=await deferredInstall.userChoice;if(r.outcome==="accepted")toast("Application installée !");deferredInstall=null;$("install").hidden=true};
 if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)){
-  addEventListener("load",()=>{try{navigator.serviceWorker.register("sw.js")}catch(e){}})}
+  addEventListener("load",()=>{try{navigator.serviceWorker.register("sw.js").then(reg=>{
+    reg.addEventListener("updatefound",()=>{const nw=reg.installing;if(!nw)return;nw.addEventListener("statechange",()=>{if(nw.state==="installed"&&navigator.serviceWorker.controller){$("upbar").hidden=false}})});
+  })}catch(e){}})}
+if($("upbtn"))$("upbtn").onclick=()=>location.reload();
+/* Rappel de sauvegarde tous les 30 jours */
+try{const lb=S.lastBackup||0;if(Date.now()-lb>30*864e5&&S.sessions.length+S.body.length>0){setTimeout(()=>toast("⚠️ "+"Pense à sauvegarder tes données (Corps → Compte)."),1500)}}catch(e){}
+/* Rappel in-app si pas de séance depuis 4 jours */
+try{const last=S.sessions.slice().sort((a,b)=>b.d.localeCompare(a.d))[0];const days=last?Math.floor((Date.now()-Date.parse(last.d+"T12:00"))/864e5):99;if(days>=4&&S.profile.onboarded){setTimeout(()=>toast("💪 "+(days>=99?"Tu n'as pas encore enregistré de séance.":"Ça fait "+days+" jours sans séance. On y va ?")),2500)}}catch(e){}
 /*__C5__*/
 </script>
 </body>
