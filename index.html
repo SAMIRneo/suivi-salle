@@ -17,7 +17,7 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 :root[data-theme="dark"]{--bg:#0b1120;--card:#131c2e;--ink:#e6edf5;--mute:#8b9ab0;--line:#1f2a3d;--acc:#ff7340;--acc-soft:rgba(255,115,64,.2);--acc-ink:#0b1120;--good:#4ade80;--good-soft:rgba(74,222,128,.2);--prot:#60a5fa;--prot-soft:rgba(96,165,250,.2);--gluc:#facc15;--gluc-soft:rgba(250,204,21,.2);--lip:#f472b6;--lip-soft:rgba(244,114,182,.2);--cardio:#22d3ee;--cardio-soft:rgba(34,211,238,.2);--corps:#a78bfa;--corps-soft:rgba(167,139,250,.2);--soft:rgba(255,255,255,.05);--shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px rgba(0,0,0,.4);color-scheme:dark}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Manrope","Segoe UI",system-ui,sans-serif}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;padding:16px 18px 12px;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 1px 0 var(--line)}
 header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.4px;color:var(--ink)}
@@ -173,6 +173,11 @@ summary::-webkit-details-marker{display:none}
 </header>
 <main>
 <section id="seance">
+  <div class="card">
+    <h2>☀️ Défi du jour (sans matériel)</h2>
+    <p class="hint" id="dailystreak" style="margin:0 0 8px"></p>
+    <ul id="dailylist"></ul>
+  </div>
   <div class="card"><h2>🎯 Défi de la semaine</h2><p class="hint" id="chh" style="margin:0 0 8px"></p><ul id="chl"></ul></div>
   <div class="card">
     <h2>Programme du jour</h2>
@@ -337,7 +342,7 @@ summary::-webkit-details-marker{display:none}
 const BASE="suivi-salle-v1";let KEY=BASE;
 const DEF=["Presse à cuisses","Leg extension","Leg curl couché","Développé couché (machine)","Pec deck","Tirage vertical","Rowing assis","Développé épaules (machine)","Curl biceps","Triceps poulie","Abducteurs","Adducteurs","Mollets","Smith machine"];
 let S={sessions:[],body:[],machines:DEF.slice()};
-function loadS(){S={sessions:[],body:[],machines:DEF.slice()};try{const j=localStorage.getItem(KEY);if(j)S=Object.assign(S,JSON.parse(j))}catch(e){}S.profile=S.profile||{}}
+function loadS(){S={sessions:[],body:[],machines:DEF.slice()};try{const j=localStorage.getItem(KEY);if(j)S=Object.assign(S,JSON.parse(j))}catch(e){}S.profile=S.profile||{};S.daily=S.daily||{}}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const $=id=>document.getElementById(id);
 const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
@@ -391,6 +396,9 @@ const PGW=[
 {n:"Full body · Rapide",d:"≈ 30 min",ex:[["Presse à cuisses","3×10","60 s"],["Développé couché (machine)","3×10","60 s"],["Tirage vertical","3×10","60 s"],["Mollets","3×15","45 s"]],t:"4 exercices de base, repos courts : parfait quand tu es pressé."},
 {n:"Full body · Standard",d:"≈ 50 min",ex:[["Presse à cuisses","4×10","90 s"],["Développé couché (machine)","4×10","90 s"],["Tirage vertical","4×10","90 s"],["Leg curl couché","3×12","60 s"],["Développé épaules (machine)","3×10","60 s"],["Curl biceps","3×12","45 s"],["Triceps poulie","3×12","45 s"]],t:"Tout le corps, le bon équilibre effort / récupération."},
 {n:"Full body · Complet",d:"≈ 75 min",ex:[["Smith machine","4×8","2 min"],["Développé couché (machine)","4×8","2 min"],["Rowing assis","4×10","90 s"],["Leg extension","3×12","60 s"],["Leg curl couché","3×12","60 s"],["Pec deck","3×12","60 s"],["Développé épaules (machine)","3×10","60 s"],["Curl biceps","3×12","45 s"],["Triceps poulie","3×12","45 s"],["Mollets","4×15","45 s"]],t:"Séance complète : charges lourdes et repos longs sur les bases, isolations après."},
+{n:"Street workout · Débutant",d:"≈ 25 min",ex:[["Pompes (genoux si besoin)","3×max","60 s"],["Squats au poids du corps","3×15","60 s"],["Dips sur une chaise","3×max","60 s"],["Gainage","3×30 s","45 s"],["Fentes alternées","3×12/jambe","45 s"]],t:"Sans matériel, à la maison ou au parc."},
+{n:"Street workout · Intermédiaire",d:"≈ 40 min",ex:[["Tractions (ou australiennes)","4×max","2 min"],["Dips (barres parallèles)","4×max","90 s"],["Pompes déclinées","4×max","60 s"],["Squats pistol (assistés)","3×6/jambe","60 s"],["Gainage + L-sit","3×20 s","45 s"],["Burpees","3×10","60 s"]],t:"Barre de traction et barres parallèles."},
+{n:"Sans équipement · Full body",d:"≈ 30 min",ex:[["Pompes","3×max","60 s"],["Squats","3×20","45 s"],["Fentes","3×12/jambe","45 s"],["Gainage","3×40 s","45 s"],["Superman (dos)","3×15","45 s"],["Jumping jacks","3×30","30 s"]],t:"Aucun matériel, partout, tout le temps."},
 {n:"Haut du corps",d:"≈ 45 min",ex:[["Développé couché (machine)","4×10","90 s"],["Tirage vertical","4×10","90 s"],["Développé épaules (machine)","3×10","60 s"],["Rowing assis","3×10","60 s"],["Curl biceps","3×12","45 s"],["Triceps poulie","3×12","45 s"]],t:"Pour les rythmes à 4 séances et plus (haut / bas)."},
 {n:"Bas du corps",d:"≈ 45 min",ex:[["Presse à cuisses","4×10","90 s"],["Leg extension","3×12","60 s"],["Leg curl couché","3×12","60 s"],["Abducteurs","3×15","45 s"],["Adducteurs","3×15","45 s"],["Mollets","4×15","45 s"]],t:"Pour les rythmes à 4 séances et plus (haut / bas)."},
 {n:"Pousser (pecs, épaules, triceps)",d:"≈ 40 min",ex:[["Développé couché (machine)","4×10","90 s"],["Pec deck","3×12","60 s"],["Développé épaules (machine)","4×10","60 s"],["Triceps poulie","3×12","45 s"]],t:"Pour les rythmes à 5 séances et plus (push / pull / legs)."},
@@ -428,7 +436,7 @@ function upLast(){const l=lastOf(curM);
   $("last").textContent=l?`Dernière fois : ${fn(l.w)} kg × ${rp(l)} (${fd(l.d)}). ${sug(l)}`:"Première fois sur cet exercice."}
 const rp=x=>x.rs?x.rs.join("/")+" rép.":x.r+" rép. × "+x.s+" séries";
 const sug=l=>{const lo=l.rs?Math.min(...l.rs):l.r;return lo>=12?"Suggestion : "+fn(l.w+2.5)+" kg, vise 8 rép.":"Suggestion : "+fn(l.w)+" kg, vise "+(lo+1)+" rép. par série."};
-function renderSeance(){renderCh();renderPg();
+function renderSeance(){renderCh();renderPg();renderDaily();
   const d=$("d").value||today(),L=S.sessions.filter(x=>x.d===d).sort((a,b)=>a.t-b.t);
   $("dayT").textContent=d===today()?"Aujourd’hui":"Séance du "+fd(d);
   $("dayL").innerHTML=L.length?L.map(x=>`<li><span><b>${esc(x.m)}</b><small>${fn(x.w)} kg × ${rp(x)}${x.rpe?" · RPE "+x.rpe:""}</small></span><span><button class="x" data-edit="${x.id}" aria-label="Modifier">✎</button><button class="x" data-del="${x.id}" aria-label="Supprimer">×</button></span></li>`).join(""):'<p class="empty">Rien d’enregistré ce jour-là.</p>';
@@ -465,7 +473,19 @@ function renderCh(){
   $("chh").innerHTML=lvl?`Niveau estimé : <b>${esc(lvl)}</b> · ${days} séance${days>1?"s":""} cette semaine`:"";
   const adv=(S.bilanLast&&S.bilanLast.adv)||ADV.forme;
   $("chl").innerHTML=ch.map(c=>`<li style="display:block;margin-bottom:8px"><div style="display:flex;justify-content:space-between;gap:8px"><span>${c.done?"✅":"⬜"} ${c.t}</span><small>${c.d}</small></div><div class="bar${c.done?" done":""}" role="progressbar" aria-valuenow="${Math.round(c.p)}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(c.t)}"><i style="width:${Math.max(4,c.p)}%"></i></div></li>`).join("")+`<p class="hint" style="margin-top:4px">💡 ${esc(adv)}</p>`}
-/*__C2__*/
+/* ===== Défi du jour (sans matériel) ===== */
+const DAILY_POOL=[{id:"pompes",t:"20 pompes (ou ton max)",i:"💪"},{id:"squats",t:"30 squats",i:"🦵"},{id:"gainage",t:"45 s de gainage",i:"🧱"},{id:"fentes",t:"20 fentes",i:"🚶"},{id:"marche",t:"10 min de marche",i:"🚶‍♀️"},{id:"etire",t:"5 min d'étirements",i:"🧘"},{id:"jumping",t:"30 jumping jacks",i:"🤸"},{id:"triceps",t:"15 dips sur une chaise",i:"🪑"},{id:"superman",t:"15 superman (dos)",i:"🦸"},{id:"planche",t:"1 min de planche",i:"⏱️"}];
+function dailyTasks(){const seed=dn(today());const arr=DAILY_POOL.slice();let s=seed;const rng=()=>{s=(s*9301+49297)%233280;return s/233280};for(let i=arr.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr.slice(0,4)}
+function renderDaily(){const D=S.daily=S.daily||{},todayStr=today();if(D.date!==todayStr){D.date=todayStr;D.done=[];save()}
+  const tasks=dailyTasks(),done=new Set(D.done||[]);
+  $("dailystreak").textContent="Série : "+(D.streak||0)+" jour"+((D.streak||0)>1?"s":"")+" de suite · coche les 4 pour valider le jour.";
+  $("dailylist").innerHTML=tasks.map(t=>`<li style="display:flex;align-items:center;gap:10px;padding:8px 0"><input type="checkbox" id="dd_${t.id}" ${done.has(t.id)?"checked":""} style="width:22px;height:22px;accent-color:var(--acc)"><label for="dd_${t.id}" style="margin:0;flex:1;font-size:14px;color:var(--ink)">${t.i} ${t.t}</label></li>`).join("");
+  $("dailylist").querySelectorAll("input[type=checkbox]").forEach(cb=>cb.onchange=()=>{
+    const id=cb.id.slice(3);const D=S.daily=S.daily||{};D.done=D.done||[];
+    if(cb.checked){if(!D.done.includes(id))D.done.push(id)}else D.done=D.done.filter(x=>x!==id);
+    const allDone=dailyTasks().every(t=>D.done.includes(t.id));
+    if(allDone&&!D.validated){D.validated=todayStr;D.streak=(D.streak||0)+1;save();toast("🏆 Défi du jour réussi ! Série : "+D.streak+" jour"+(D.streak>1?"s":""))}
+    if(!allDone)D.validated=null;save();renderDaily()})}
 /* ===== Cardio ===== */
 const JUMP="Corde à sauter",CA=["Tapis de course","Vélo","Elliptique","Rameur","Marche","Escalier",JUMP,"Autre"];
 function C(){return S.cardio=S.cardio||[]}
