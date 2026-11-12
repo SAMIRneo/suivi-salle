@@ -226,15 +226,7 @@ summary::-webkit-details-marker{display:none}
     <div id="lout" style="margin-top:12px"></div>
   </div>
 </section>
-<section id="progres" hidden>
-  <div class="card">
-    <h2>Ma progression par machine</h2>
-    <label for="pm">Machine</label>
-    <select id="pm"></select>
-    <label for="pmode" style="margin-top:10px">Courbe</label><select id="pmode"><option value="w">Charge max</option><option value="rm">1RM estimé</option><option value="vol">Volume (kg)</option></select>
-    <div id="pbody" style="margin-top:12px"></div>
-  </div>
-</section>
+<section id="progres" hidden><div id="pgal"></div></section>
 <section id="nut" hidden>
   <div class="card">
     <h2>Ton profil</h2>
@@ -326,9 +318,10 @@ const DAYMS=864e5,dn=d=>Math.floor(Date.parse(d+"T00:00:00Z")/DAYMS);
 function fill(sel){const v=sel.value;sel.innerHTML=mlist().map(m=>`<option>${esc(m)}</option>`).join("");if(v&&mlist().includes(v))sel.value=v}
 function lastOf(m){return S.sessions.filter(x=>x.m===m).sort((a,b)=>b.d.localeCompare(a.d)||b.t-a.t)[0]}
 
-function chart(pts,unit){
+function chart(pts,unit,H){
+  H=H||150;
   if(pts.length<2)return '<p class="empty">Ajoute au moins deux entrées pour voir la courbe.</p>';
-  const W=320,H=150,p=28,ys=pts.map(q=>q.y),mn=Math.min(...ys),mx=Math.max(...ys),r=(mx-mn)||1;
+  const W=320,p=28,ys=pts.map(q=>q.y),mn=Math.min(...ys),mx=Math.max(...ys),r=(mx-mn)||1;
   const t0=+new Date(pts[0].x),t1=+new Date(pts[pts.length-1].x),X=i=>t1>t0?p+(W-2*p)*(+new Date(pts[i].x)-t0)/(t1-t0):p+(W-2*p)*i/(pts.length-1),Y=v=>H-p-(H-2*p)*(v-mn)/r;
   const path=pts.map((q,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(q.y).toFixed(1)).join(" ");
   const dots=pts.map((q,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(q.y).toFixed(1)}" r="3.5" fill="var(--acc)"/>`).join("");
@@ -394,7 +387,7 @@ function renderPg(){
   $("pgrec").textContent=PGR[fqOf()];
   $("pgl").innerHTML=pgEx(p).map(e=>`<button type="button" data-pm="${esc(e[0])}" aria-label="${esc(e[0])}${done.has(e[0])?", fait aujourd’hui":""}"${done.has(e[0])?" class=\"pgdone\"":""}>${done.has(e[0])?"✓ ":""}${esc(e[0])}<small>${esc(e[1])} · repos ${esc(e[2])}</small></button>`).join("")}
 $("pgp").onchange=()=>{S.pgSel=$("pgp").value;save();renderPg()};
-$("pgl").onclick=e=>{const b=e.target.closest("[data-pm]");if(!b)return;curM=b.dataset.pm;S.lastM=curM;$("pm").value=curM;$("lm").textContent=curM;openLog();upLast();window.scrollTo(0,0)};
+$("pgl").onclick=e=>{const b=e.target.closest("[data-pm]");if(!b)return;curM=b.dataset.pm;S.lastM=curM;if($("pm"))$("pm").value=curM;$("lm").textContent=curM;openLog();upLast();window.scrollTo(0,0)};
 function openLog(){const l=lastOf(curM);editId=null;
   if(l){$("w").value=l.w;$("r").value=l.r;$("s").value=l.s;$("rs").value=l.rs?l.rs.join("/"):""}
   else{$("w").value="";$("r").value="";$("s").value=3;$("rs").value=""}
@@ -419,7 +412,7 @@ $("add").onclick=()=>{
   if(editId){const i=S.sessions.findIndex(x=>x.id===editId);if(i>=0)S.sessions[i]=entry;else S.sessions.push(entry);editId=null;$("add").textContent="Enregistrer la série"}
   else S.sessions.push(entry);
   if(pm>0&&w>pm){const k=weekKey();S.recW=S.recW||{};S.recW[k]=(S.recW[k]||0)+1}
-  save();S.lastM=curM;$("pm").value=curM;renderSeance();renderProgres();
+  save();S.lastM=curM;if($("pm"))$("pm").value=curM;renderSeance();renderProgres();
   toast(pm>0&&w>pm?"🏆 Nouveau record : "+fn(w)+" kg !":"Série enregistrée",pm>0&&w>pm);$("rs").value="";$("rpe").value="";rest(restSec)};
 $("newm").onclick=()=>{const n=(prompt("Nom de la machine ?")||"").trim();if(!n)return;if(!S.machines.includes(n))S.machines.push(n);save();curM=n;$("lm").textContent=n;fill($("cmach"));openLog();upLast()};
 $("dayL").onclick=e=>{const ed=e.target.dataset.edit;
@@ -521,16 +514,60 @@ function prefillCalc(){
 ["lmode","lw","lr","lst"].forEach(i=>$(i).oninput=renderCalc);
 $("cmach").onchange=prefillCalc;
 /* ===== Progrès : uniquement les courbes ===== */
-function renderProgres(){
-  const m=$("pm").value,L=S.sessions.filter(x=>x.m===m);
-  if(!L.length){$("pbody").innerHTML='<p class="empty">Aucune donnée pour cette machine. Enregistre une série dans l’onglet Séance.</p>';return}
-  const by={};const pmo=$("pmode").value;L.forEach(x=>{const v=pmo==="rm"?est(x.w,Math.min(x.r,20)).rm:pmo==="vol"?x.w*x.r*x.s:x.w;by[x.d]=pmo==="vol"?(by[x.d]||0)+v:Math.max(by[x.d]||0,v)});
-  const pts=Object.keys(by).sort().map(k=>({x:k,y:by[k]}));
-  const rec=Math.max(...pts.map(q=>q.y)),last=pts[pts.length-1].y,diff=last-pts[0].y;
-  $("pbody").innerHTML=`<div class="stats"><div class="stat"><b>${fn(rec)} kg</b><span>Record</span></div><div class="stat"><b>${fn(last)} kg</b><span>Dernière séance</span></div><div class="stat"><b class="${diff>0?"up":""}">${diff>0?"+":""}${fn(diff)} kg</b><span>Depuis le début</span></div></div>${chart(pts)}${plat(L)}<p class="hint">1RM estimé (charge max sur 1 répétition) : <b>${fn(Math.max(...L.map(x=>est(x.w,Math.min(x.r,20)).rm)))} kg</b></p>
-  <ul style="margin-top:10px">${L.slice().sort((a,b)=>b.d.localeCompare(a.d)||b.t-a.t).slice(0,15).map(x=>`<li><span><b>${fn(x.w)} kg</b><small>${rp(x)}${x.rpe?" · RPE "+x.rpe:""}</small></span><small>${fd(x.d)}</small></li>`).join("")}</ul>`}
+/* ===== Progrès : une galerie de courbes, pour tous les aspects ===== */
+function byDayBest(L,val){const b={};L.forEach(x=>{const v=val(x);b[x.d]=b[x.d]==null?v:Math.max(b[x.d],v)});return Object.keys(b).sort().map(k=>({x:k,y:b[k]}))}
 function plat(L){const b={};L.forEach(x=>{b[x.d]=Math.max(b[x.d]||0,est(x.w,Math.min(x.r,20)).rm)});const v=Object.keys(b).sort().map(k=>b[k]);if(v.length<5)return"";return Math.max(...v.slice(-4))<=Math.max(...v.slice(0,-4))?'<p class="hint"><b>Plateau :</b> pas de progrès depuis 4 séances. Varie les répétitions, change d’exercice ou allège de 10 % pendant une semaine.</p>':""}
-$("pmode").onchange=renderProgres;
+function pmCharts(){
+  const m=$("pm").value,L=S.sessions.filter(x=>x.m===m),o=$("pmcharts");
+  if(!L.length){o.innerHTML='<p class="empty">Aucune donnée pour cette machine.</p>';return}
+  const day={};L.forEach(x=>{day[x.d]=day[x.d]||[];day[x.d].push(x)});
+  const dks=Object.keys(day).sort();
+  const wmax=byDayBest(L,x=>x.w),rm=byDayBest(L,x=>est(x.w,Math.min(x.r,20)).rm);
+  const vol=dks.map(d=>({x:d,y:day[d].reduce((t,x)=>t+x.w*x.r*x.s,0)}));
+  const rec=Math.max(...wmax.map(q=>q.y)),last=wmax[wmax.length-1].y,diff=last-wmax[0].y;
+  o.innerHTML=`<div class="stats"><div class="stat"><b>${fn(rec)} kg</b><span>Record</span></div><div class="stat"><b>${fn(last)} kg</b><span>Dernière</span></div><div class="stat"><b class="${diff>0?"up":""}">${diff>0?"+":""}${fn(diff)} kg</b><span>Depuis le début</span></div></div>`
+   +`<h3 style="margin:6px 0 2px;font-size:13px;color:var(--mute)">Charge max (kg)</h3>${chart(wmax,null,120)}${plat(L)}`
+   +`<h3 style="margin:6px 0 2px;font-size:13px;color:var(--mute)">1RM estimé (kg)</h3>${chart(rm,null,120)}`
+   +`<h3 style="margin:6px 0 2px;font-size:13px;color:var(--mute)">Volume par séance (kg)</h3>${chart(vol,null,120)}`}
+function renderProgres(){
+  let x="";
+  /* Muscu : 3 courbes par machine */
+  const ms=mlist().filter(m=>S.sessions.some(s=>s.m===m));
+  if(!ms.length)x+='<div class="card"><h2>🏋️ Muscu</h2><p class="empty">Enregistre une série dans Séance : tes courbes apparaîtront ici.</p></div>';
+  else{
+    const cur=ms.includes(S.lastM)?S.lastM:ms[0];
+    x+=`<div class="card"><h2>🏋️ Muscu</h2><label for="pm">Machine</label><select id="pm">${ms.map(m=>`<option${m===cur?" selected":""}>${esc(m)}</option>`).join("")}</select><div id="pmcharts" style="margin-top:12px"></div></div>`}
+  /* Régularité : séances par semaine */
+  {const w={};S.sessions.forEach(s=>{const k=weekKeyOf(s.d);w[k]=(w[k]||0)+1});
+   const pts=Object.keys(w).sort().map(k=>({x:k,y:w[k]}));
+   x+=`<div class="card"><h2>📅 Régularité — séances par semaine</h2>${chart(pts,null,110)}</div>`}
+  /* Cardio : minutes par semaine + une courbe par activité */
+  {const w={};(S.cardio||[]).forEach(c=>{const k=weekKeyOf(c.d);w[k]=(w[k]||0)+(c.min||0)});
+   const wk=Object.keys(w).sort().map(k=>({x:k,y:Math.round(w[k])}));
+   x+=`<div class="card"><h2>🏃 Cardio — minutes par semaine</h2>${chart(wk,null,110)}`;
+   const acts=[...new Set((S.cardio||[]).map(c=>c.a))];
+   if(acts.length)x+=acts.map(a=>{const L=(S.cardio||[]).filter(c=>c.a===a),jump=a===JUMP;
+     const pts=byDayBest(L,c=>jump?c.j:c.v);
+     const rec=Math.max(...L.map(c=>jump?c.j:c.v));
+     return `<h3 style="margin:10px 0 2px;font-size:13px;color:var(--mute)">${esc(a)} — ${jump?"sauts":"vitesse moy. (km/h)"} · record ${fn(rec)}</h3>${chart(pts,null,110)}`}).join("");
+   else x+='<p class="empty">Aucune séance de cardio enregistrée.</p>';
+   x+="</div>"}
+  /* Tests de performance : une courbe par test */
+  {const names=[...new Set(T().map(t=>t.n))];
+   if(names.length)x+=`<div class="card"><h2>💪 Performance</h2>${names.map(n=>{const L=T().filter(t=>t.n===n),d=TDs().find(q=>q[0]===n)||[n,"",1],up=d[2];
+     const pts=byDayBest(L,t=>t.v),rec=up?Math.max(...L.map(t=>t.v)):Math.min(...L.map(t=>t.v));
+     return `<h3 style="margin:10px 0 2px;font-size:13px;color:var(--mute)">${esc(n)} · record ${fn(rec)} ${d[1]}</h3>${chart(pts,null,110)}`}).join("")}</div>`}
+  /* Corps : poids */
+  {const L=S.body.slice().sort((a,b)=>a.d.localeCompare(b.d));
+   x+=`<div class="card"><h2>⚖️ Poids (kg)</h2>${L.length>1?chart(L.map(q=>({x:q.d,y:q.w})),null,120):'<p class="empty">Deux pesées au minimum pour la courbe.</p>'}</div>`}
+  /* Mensurations : une courbe par mesure */
+  {const ks=[...new Set(mens().map(q=>q.k))];
+   if(ks.length)x+=`<div class="card"><h2>📏 Mensurations (cm)</h2>${ks.map(k=>{const L=mens().filter(q=>q.k===k);
+     return `<h3 style="margin:10px 0 2px;font-size:13px;color:var(--mute)">${esc(k)} · dernière ${fn(L.sort((a,b)=>b.d.localeCompare(a.d))[0].v)} cm</h3>${chart(byDayBest(L,q=>q.v),null,110)}`}).join("")}</div>`}
+  $("pgal").innerHTML=x;
+  if($("pm")){$("pm").onchange=pmCharts;pmCharts()}}
+function weekKeyOf(d){const n=new Date(d+"T12:00:00"),s=new Date(n);s.setDate(n.getDate()-(n.getDay()+6)%7);return new Date(s-s.getTimezoneOffset()*6e4).toISOString().slice(0,10)}
+
 /*__C3__*/
 /* ===== Nutrition : adaptée au sexe, à l'âge, à l'objectif et à l'activité réelle =====
    Sources : Mifflin-St Jeor (métabolisme) · EFSA/ANSES (eau, lipides, micronutriments) · ISSN/ACSM (protéines). */
@@ -629,15 +666,17 @@ $("jlist").onclick=e=>{const id=e.target.dataset.jdel;if(!id)return;S.journal=J(
 /* ===== Cycle (profil femme) ===== */
 const dn2=dn,opt=(a,v)=>a.map(x=>`<option${x===v?" selected":""}>${x}</option>`).join("");
 const PH=[
- {e:"🩸",n:"Menstruation",t:["Privilégie la récupération et la mobilité.","Une séance légère ou une marche peut faire du bien.","En cas de douleurs fortes, repose-toi."]},
- {e:"🌱",n:"Phase folliculaire",t:["Phase souvent propice à la progression.","Tu peux essayer d’augmenter légèrement les charges.","Soigne le sommeil et l’hydratation."]},
- {e:"🥚",n:"Ovulation",t:["Beaucoup de personnes se sentent au sommet de leur forme.","Bon moment pour tenter un record, avec un bon échauffement.","Reste attentive à la technique."]},
- {e:"🌙",n:"Phase lutéale",t:["Écoute ta fatigue.","Réduis légèrement le volume si nécessaire.","Prévois plus de repos si tu en ressens le besoin."]}];
+ {e:"🩸",n:"Menstruation",t:["Ce qui peut changer : fatigue perçue (RPE) plus élevée, crampes, sommeil parfois perturbé.","Les études mesurent une performance à peine réduite à ce moment (McNulty 2020) : si tu te sens bien, entraîne-toi normalement.","Charge légère ou marche si douleurs fortes : l'essentiel est la régularité sur l'année."]},
+ {e:"🌱",n:"Phase folliculaire",t:["Ce qui peut changer : monte en puissance, fatigue plus faible.","Quelques études voient un pic de force vers la fin de la phase (Niering 2024) : bon moment pour viser +2,5 kg.","C'est aussi la phase où l'entraînement est le mieux toléré : profite-en pour le volume."]},
+ {e:"🥚",n:"Ovulation",t:["Ce qui peut changer : forme et force au top pour beaucoup de personnes.","Bon moment pour tenter un record, avec un échauffement soigné : les signaux sur le risque de blessure autour de l'ovulation sont contradictoires entre études.","Reste attentive à la technique sur les charges lourdes."]},
+ {e:"🌙",n:"Phase lutéale",t:["Ce qui peut changer : fatigue et RPE augmentés, sommeil moins bon, envies plus fortes.","Rétention d'eau jusqu'à 1 à 2 kg sur la balance (Carmichael 2021) : c'est de l'eau, pas du gras — ne change rien à ton plan.","Garde tes charges, réduis le volume si tu es fatiguée : la force reste là."]}];
+const CYCSCI=["<b>Force</b> : à hormone vérifiée, aucune différence de force entre phases (Colenso-Semple 2023). La méta-analyse McNulty 2020 (Sports Medicine) trouve un effet minuscule, sauf en tout début de cycle (légèrement moins performante).","<b>Entraîner en fonction du cycle ?</b> Les études sérieuses ne montrent pas de bénéfice prouvé à changer de programme selon la phase : le mieux est de garder le même programme et d'ajuster le volume au ressenti.","<b>Poids et mensurations</b> : la phase lutéale gonfle la rétention d'eau (jusqu'à ~2 kg) et peut augmenter le tour de taille. Pèse-toi en comparant la même phase d'un mois à l'autre.","<b>Blessures</b> : signaux contradictoires (risque de lésion du genou parfois plus élevé autour de l'ovulation dans certaines études, plus faible en lutéal dans d'autres ; muscles : pas de différence significative). Un bon échauffement reste ton meilleur bouclier.","<b>Repères physiologiques</b> : température au repos plus élevée en lutéal (+0,3 à 0,5 °C), dépense énergétique quasi stable, besoins en fer plus élevés à cause des règles (voir Nutrition)."];
 function cycInfo(d=today()){const c=S.cyc,st=c&&c.starts&&c.starts.filter(x=>x<=d).sort().pop();if(!st)return null;const cl=c.cl||28,pl=c.pl||5,n=(dn(d)-dn(st))%cl+1,ov=cl-14,i=n<=pl?0:n<ov-1?1:n<=ov+1?2:3;return{n,cl,i,ph:PH[i]}}
 function renderCyc(){const c=cycInfo(),C=S.cyc||{},st=(C.starts||[]).slice(-1)[0]||"",v=(C.ent||{})[st]||{};
  $("cyb").innerHTML=c?`<h2>Aujourd’hui : jour ${c.n} du cycle</h2><div style="font-size:1.3em;margin:6px 0 10px">${c.ph.e} ${c.ph.n}</div><div class="cbar"><i style="width:${Math.round(100*c.n/c.cl)}%"></i></div><ul>${c.ph.t.map(x=>`<li><span>${x}</span></li>`).join("")}</ul><p class="hint">Repères généraux : chaque cycle est différent, écoute ton corps. Ne remplace pas un avis médical.</p>`:'<h2>Cycle</h2><p class="hint">Renseigne le début de tes dernières règles ci-dessous pour voir ton jour de cycle et ta phase.</p>';
  const row=(l,h)=>`<div style="margin-top:10px"><label>${l}</label>${h}</div>`;
- $("cyf").innerHTML=row("Début des dernières règles",`<input id="cy_s" type="date" value="${st}">`)+row("Durée moyenne des règles (jours)",`<input id="cy_p" type="number" min="1" max="12" value="${C.pl||5}">`)+row("Durée moyenne du cycle (jours)",`<input id="cy_l" type="number" min="20" max="45" value="${C.cl||28}">`)+row("Intensité",`<select id="cy_i">${opt(["légère","normale","abondante"],v.i||"normale")}</select>`)+row("Douleurs",`<select id="cy_d">${opt(["aucune","légères","modérées","fortes"],v.d||"aucune")}</select>`)+'<button class="btn" id="cy_ok">Enregistrer</button>'+((C.starts||[]).length?"<ul>"+C.starts.slice(-4).reverse().map(d=>`<li><span><b>${fd(d)}</b><small>${(C.ent||{})[d]?(C.ent[d].i+", douleurs "+C.ent[d].d):""}</small></span></li>`).join("")+"</ul>":"")}
+ $("cyf").innerHTML=row("Début des dernières règles",`<input id="cy_s" type="date" value="${st}">`)+row("Durée moyenne des règles (jours)",`<input id="cy_p" type="number" min="1" max="12" value="${C.pl||5}">`)+row("Durée moyenne du cycle (jours)",`<input id="cy_l" type="number" min="20" max="45" value="${C.cl||28}">`)+row("Intensité",`<select id="cy_i">${opt(["légère","normale","abondante"],v.i||"normale")}</select>`)+row("Douleurs",`<select id="cy_d">${opt(["aucune","légères","modérées","fortes"],v.d||"aucune")}</select>`)+'<button class="btn" id="cy_ok">Enregistrer</button>'+((C.starts||[]).length?"<ul>"+C.starts.slice(-4).reverse().map(d=>`<li><span><b>${fd(d)}</b><small>${(C.ent||{})[d]?(C.ent[d].i+", douleurs "+C.ent[d].d):""}</small></span></li>`).join("")+"</ul>":"")
+  +'<h2 style="margin-top:16px">🔬 Ce que disent les études</h2><ul style="display:block">'+CYCSCI.map(x=>`<li style="display:block;padding:8px 0"><small style="color:var(--ink)">${x}</small></li>`).join("")+'</ul><p class="hint">Sources : McNulty et al. 2020 (Sports Med) · Colenso-Semple et al. 2023 · Niering et al. 2024 · Carmichael et al. 2021. Chaque corps réagit différemment : ce sont des moyennes, pas des règles absolues.</p>'}
 $("cyf").onclick=e=>{if(e.target.id!=="cy_ok")return;const d=$("cy_s").value;if(!d){toast("⚠️ "+"Indique la date de début des règles.");return}const C=S.cyc=S.cyc||{};C.pl=Math.max(1,parseInt($("cy_p").value)||5);C.cl=Math.max(20,Math.min(45,parseInt($("cy_l").value)||28));C.starts=[...new Set([...(C.starts||[]),d])].sort();(C.ent=C.ent||{})[d]={i:$("cy_i").value,d:$("cy_d").value};save();renderCyc();toast("Cycle enregistré")};
 /*__C4__*/
 /* ===== Bilan de départ (obligatoire, au premier lancement) ===== */
@@ -682,7 +721,7 @@ document.querySelectorAll("#perfseg button").forEach(b=>b.onclick=()=>{perfView=
   document.querySelectorAll("#perfseg button").forEach(x=>x.setAttribute("aria-pressed",x===b));go("perf")});
 document.querySelectorAll("#corpsseg button").forEach(b=>b.onclick=()=>{corpsView=b.dataset.v;
   document.querySelectorAll("#corpsseg button").forEach(x=>x.setAttribute("aria-pressed",x===b));go("corps")});
-function all(){fill($("cmach"));fill($("pm"));if(S.lastM&&mlist().includes(S.lastM))$("pm").value=S.lastM;fillT();renderSeance();renderProgres();renderBody();renderCardio();renderTests();renderMens();openNut();prefillCalc()}
+function all(){fill($("cmach"));fillT();renderSeance();renderProgres();renderBody();renderCardio();renderTests();renderMens();openNut();prefillCalc()}
 function go(t){
   document.querySelectorAll(".tabbar button").forEach(x=>{x.setAttribute("aria-current",x.dataset.t===t?"page":"false")});
   const m=document.querySelector("main");m.classList.remove("tab-enter");void m.offsetWidth;m.classList.add("tab-enter");
