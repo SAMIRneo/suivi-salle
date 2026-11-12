@@ -2,7 +2,7 @@
   "name": "Suivi salle – Basic-Fit Versailles",
   "short_name": "Suivi salle",
   "lang": "fr",
-  "start_url": "./suivi-salle.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
