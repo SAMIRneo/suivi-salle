@@ -657,6 +657,7 @@ function prefillOnb(){const P=S.profile||{},L=S.bilanLast||{};
  const V=L.v||{};$("on_qpu").value=V.on_qpu||"";$("on_qtr").value=V.on_qtr||"";$("on_qgi").value=V.on_qgi||"";$("on_qsq").value=V.on_qsq||"";$("on_qbp").value=V.on_qbp||"";
  $("onerr").textContent=""}
 $("onbgo").onclick=()=>{
+  S.profile=S.profile||{};
   const sx=$("on_sx").value,a=parseInt($("on_a").value),h=parseFloat($("on_h").value),w=parseFloat($("on_w").value),gl=$("on_gl").value,fq=$("on_fq").value,exp=$("on_exp").value;
   if(!(a>=10&&a<=99)){$("onerr").textContent="Indique ton âge (10 à 99 ans).";$("on_a").focus();return}
   if(!(h>=120&&h<=230)){$("onerr").textContent="Indique ta taille (120 à 230 cm).";$("on_h").focus();return}
