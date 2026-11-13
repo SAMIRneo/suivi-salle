@@ -152,6 +152,7 @@ summary::-webkit-details-marker{display:none}
     <div class="row" style="margin-top:10px"><div><label for="on_a">Âge</label><input id="on_a" type="number" inputmode="numeric"></div><div><label for="on_h">Taille (cm)</label><input id="on_h" type="number" inputmode="numeric"></div></div>
     <div style="margin-top:10px"><label for="on_w">Poids (kg)</label><input id="on_w" type="number" inputmode="decimal" step="0.1" min="0"></div>
     <div style="margin-top:10px"><label for="on_gl">Objectif</label><select id="on_gl"><option value="muscle">Prendre du muscle</option><option value="gras">Perdre du gras</option><option value="force">Gagner en force</option><option value="endurance">Gagner en endurance</option><option value="forme">Être en forme</option></select></div>
+    <div style="margin-top:10px"><label>Maladies ou conditions médicales (plusieurs choix)</label><div class="chips" id="on_mal" style="margin-top:6px"><button type="button" data-v="aucune">Aucune</button><button type="button" data-v="asthme">Asthme</button><button type="button" data-v="diabete">Diabète</button><button type="button" data-v="hypertension">Hypertension</button><button type="button" data-v="cardiaque">Problème cardiaque</button><button type="button" data-v="epilepsie">Épilepsie</button><button type="button" data-v="thyroide">Thyroïde</button><button type="button" data-v="grossesse">Grossesse</button><button type="button" data-v="autre">Autre</button></div><input id="on_maltxt" placeholder="Précise si tu veux (optionnel)" style="margin-top:6px" aria-label="Préciser une maladie"><p class="hint" style="margin-top:6px">⚠️ Ces infos servent seulement à adapter les conseils de l'app. En cas de maladie, demande l'avis de ton médecin avant un programme intense.</p></div>
     <div class="row" style="margin-top:10px"><div><label for="on_fq">Séances par semaine</label><select id="on_fq"><option value="2">1 à 2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5 ou plus</option></select></div><div><label for="on_exp">Expérience</label><select id="on_exp"><option value="d">Débutant (moins de 6 mois)</option><option value="i">Intermédiaire</option><option value="a">Avancé</option></select></div></div>
   </div>
   <div class="card">
@@ -209,14 +210,24 @@ summary::-webkit-details-marker{display:none}
   <div class="card"><h2>🎯 Défi de la semaine</h2><p class="hint" id="chh" style="margin:0 0 8px"></p><ul id="chl"></ul></div>
   <div class="card" id="plancard" hidden><h2>📋 Mon plan d'action</h2><div id="planout"></div><button class="btn alt" id="planedit">Modifier mon bilan</button></div>
   <div class="card" id="tipcard" hidden><h2>💡 Conseil du jour</h2><p id="tiptxt" style="margin:0"></p></div>
+  <div class="card" id="santecard" hidden><h2>⚕️ Santé</h2><p id="santetxt" style="margin:0"></p><p class="hint" style="margin:8px 0 0">⚠️ Ces infos ne remplacent pas un avis médical : parle de ton programme à ton médecin.</p></div>
   <div class="card">
     <h2>Programme du jour</h2>
     <button class="btn" id="pgrecbtn" style="margin-top:0">✨ Séance recommandée</button>
-    <div class="chips" id="pgcat" style="margin-top:10px"><button type="button" data-cat="all" class="on">Tout</button><button type="button" data-cat="muscu">🏋️ Muscu</button><button type="button" data-cat="maison">🏠 Maison</button><button type="button" data-cat="street">🌳 Street</button><button type="button" data-cat="mobilite">🧘 Mobilité & Cardio</button></div>
+    <div class="chips" id="pgcat" style="margin-top:10px"><button type="button" data-cat="all" class="on">Tout</button><button type="button" data-cat="perso">⭐ Perso</button><button type="button" data-cat="muscu">🏋️ Muscu</button><button type="button" data-cat="maison">🏠 Maison</button><button type="button" data-cat="street">🌳 Street</button><button type="button" data-cat="mobilite">🧘 Mobilité & Cardio</button></div>
     <label for="pgp" class="hint" style="margin:10px 0 4px;display:block">Ou choisis toi-même selon ton temps aujourd'hui</label>
     <select id="pgp"></select>
     <p class="hint" id="pgi"></p>
     <div class="chips" id="pgl" style="flex-wrap:wrap;margin-top:10px"></div>
+    <details id="persoW" style="margin-top:12px"><summary>⭐ Mon programme perso</summary>
+      <div style="margin-top:8px"><label for="perso_n">Nom du programme</label><input id="perso_n" placeholder="Mon programme jambes"></div>
+      <div style="margin-top:8px"><label for="perso_e">Exercice</label><input id="perso_e" list="mlist2" placeholder="Nom de l'exercice"><datalist id="mlist2"></datalist></div>
+      <div class="row" style="margin-top:8px"><div><label for="perso_s">Séries × rép. (ou temps)</label><input id="perso_s" placeholder="3×10 ou 3×30 s"></div><div><label for="perso_r">Repos</label><select id="perso_r"><option>30 s</option><option>45 s</option><option selected>60 s</option><option>90 s</option><option>2 min</option></select></div></div>
+      <button class="btn" id="perso_add" style="margin-top:8px">+ Ajouter cet exercice</button>
+      <ul id="perso_l" style="margin-top:8px"></ul>
+      <button class="btn" id="perso_save" hidden>💾 Enregistrer ce programme</button>
+      <p class="hint" style="margin-top:6px">Tes exercices + des exercices recommandés pour ta phase de cycle (voir Corps → Cycle) : ta séance, ton ordre, tes repos.</p>
+    </details>
     <p class="hint" id="pgrec"></p>
     <div id="logw" hidden>
       <h2 id="lm">Exercice</h2>
@@ -227,7 +238,14 @@ summary::-webkit-details-marker{display:none}
         <div><label for="r">Répétitions</label><input id="r" type="number" inputmode="numeric" min="1"></div>
         <div><label for="s">Séries</label><input id="s" type="number" inputmode="numeric" min="1" value="3"></div>
       </div>
-      <div style="margin-top:10px"><label for="rpe">Ressenti de l'effort (RPE)</label><select id="rpe"><option value="">–</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select><p class="hint">8 : j'aurais pu faire 2 rép. de plus.</p></div>
+      <div style="margin-top:10px"><label for="rpe">Ressenti de l'effort (RPE)</label><select id="rpe"><option value="">–</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select>
+      <details style="margin-top:6px"><summary>Qu'est-ce que le RPE ?</summary><div class="hint" style="margin-top:6px">Le RPE, c'est ta note d'effort ressentie à la <b>fin de la série</b>, de 5 à 10 :</div>
+      <ul style="margin-top:4px">
+      <li style="display:block;padding:3px 0"><b>5-6</b> : facile. Tu aurais pu faire 4 répétitions de plus, ou plus.</li>
+      <li style="display:block;padding:3px 0"><b>7-8</b> : dur mais maîtrisé. Il te restait 1 à 3 répétitions en réserve.</li>
+      <li style="display:block;padding:3px 0"><b>9</b> : presque l'échec. Tu aurais pu faire 1 répétition de plus, pas plus.</li>
+      <li style="display:block;padding:3px 0"><b>10</b> : échec. Tu n'aurais rien pu ajouter. À réserver aux tests et aux dernières séries.</li></ul>
+      <p class="hint" style="margin-top:4px">En pratique : vis le plus souvent <b>7-8</b> (il reste 1 à 3 répétitions). C'est le meilleur rapport effort / progrès. Le 10 se garde pour les tests ou la toute fin d'un bloc d'entraînement.</p></details></div>
       <details>
         <summary>Plus d'options</summary>
         <div style="margin-top:8px"><label for="rs">Répétitions par série</label><input id="rs" placeholder="10/9/8"></div>
@@ -514,18 +532,20 @@ const fqOf=()=>Math.min(5,Math.max(1,parseInt((S.bilanLast&&S.bilanLast.fq))||3)
 const PGR={1:"Avec 1 à 2 séances par semaine : corps entier à chaque fois. Alterne Rapide et Standard selon ton temps.",2:"Avec 1 à 2 séances par semaine : corps entier à chaque fois. Alterne Rapide et Standard selon ton temps.",3:"Avec 3 séances : corps entier. Varie Rapide / Standard / Complet selon ton temps du jour.",4:"Avec 4 séances : alterne Haut du corps et Bas du corps, deux fois chacun.",5:"Avec 5 séances et plus : Pousser / Tirer / Jambes, plus un full body ou une séance de cardio."};
 function renderPg(){
   const cat=S.pgCat||"all";
-  const list=PGW.filter(p=>cat==="all"||(PMETA[p.n]||{}).cat===cat);
+  const list=PGW.concat(perso()).filter(p=>cat==="all"||(PMETA[p.n]?PMETA[p.n].cat===cat:cat==="perso"));
   document.querySelectorAll("#pgcat button").forEach(b=>b.classList.toggle("on",b.dataset.cat===cat));
   if(!list.some(p=>p.n===S.pgSel))S.pgSel=list.length?list[0].n:"Full body · Standard";
   $("pgp").innerHTML=list.map(p=>`<option value="${esc(p.n)}">${esc(p.n)} — ${p.d}</option>`).join("");
-  $("pgp").value=list.some(p=>p.n===S.pgSel)?S.pgSel:"Full body · Standard";S.pgSel=$("pgp").value;
-  const p=PGW.find(q=>q.n===S.pgSel),done=new Set(S.sessions.filter(x=>x.d===($("d").value||today())).map(x=>x.m));
+  $("pgp").value=list.some(p=>p.n===S.pgSel)?S.pgSel:(list.length?list[0].n:"Full body · Standard");S.pgSel=$("pgp").value;
+  const p=PGW.concat(perso()).find(q=>q.n===S.pgSel),done=new Set(S.sessions.filter(x=>x.d===($("d").value||today())).map(x=>x.m));
   $("pgi").innerHTML=`<b>${p.d}</b> · ${pgEx(p).length} exercices · ${p.t}`;
   $("pgrec").textContent=PGR[fqOf()];
   $("pgl").innerHTML=pgEx(p).map(e=>`<button type="button" data-pm="${esc(e[0])}" aria-label="${esc(e[0])}${done.has(e[0])?", fait aujourd’hui":""}"${done.has(e[0])?" class=\"pgdone\"":""}>${done.has(e[0])?"✓ ":""}${esc(e[0])}<small>${esc(e[1])} · repos ${esc(e[2])}</small></button>`).join("")}
 /* Séance recommandée selon profil, fatigue, matériel, fréquence et cycle */
 function recProg(){
   const P=S.profile||{},fq=fqOf(),time=P.time||45;
+  const mals=(P.maladies||[]).filter(x=>x&&x!=="aucune");
+  if(mals.includes("grossesse"))return "Mobilité · Full body";
   const ci=S.cyc?cycInfo():null;
   const fat=P.energy==="faible"||P.sleep==="faible"||(ci&&ci.i===3);
   if(fat)return "Mobilité · Full body";
@@ -541,6 +561,32 @@ function recProg(){
   return time>=60?"Full body · Complet":"Full body · Standard"}
 $("pgrecbtn").onclick=()=>{const n=recProg();S.pgSel=n;S.pgCat=(PMETA[n]||{}).cat||"all";save();renderPg();toast("✨ Séance recommandée : "+n)};
 document.querySelectorAll("#pgcat button").forEach(b=>b.onclick=()=>{S.pgCat=b.dataset.cat;save();renderPg()});
+/* ===== Programme perso ===== */
+const perso=()=>S.perso=S.perso||[];
+let pbuild=null;
+function renderPerso(){
+  $("mlist2").innerHTML=mlist().map(m=>`<option value="${esc(m)}">`).join("");
+  $("perso_l").innerHTML=(pbuild&&pbuild.ex.length?pbuild.ex.map((e,i)=>`<li><span><b>${esc(e[0])}</b><small>${esc(e[1])} · repos ${esc(e[2])}</small></span><span><button class="x" data-pdel="${i}" aria-label="Supprimer">×</button></span></li>`).join(""):'<p class="empty" style="margin:6px 0">Ajoute tes exercices un par un, puis enregistre le programme.</p>')
+   +(perso().length?'<li style="display:block;padding:10px 0 0"><small style="color:var(--mute);font-weight:700">Mes programmes enregistrés</small><div class="chips" style="margin-top:6px">'+perso().map(p=>`<button type="button" class="sc" data-puse="${esc(p.n)}">${esc(p.n)}</button><button class="x" data-pdelprog="${esc(p.n)}" aria-label="Supprimer ${esc(p.n)}">×</button>`).join("")+'</div></li>':"");
+  $("perso_save").hidden=!(pbuild&&pbuild.ex.length)}
+$("perso_add").onclick=()=>{const n=$("perso_e").value.trim(),se=$("perso_s").value.trim()||"3×10";
+  if(!n){toast("⚠️ Indique le nom de l'exercice.");return}
+  pbuild=pbuild||{n:"Mon programme",ex:[]};
+  pbuild.n=$("perso_n").value.trim()||pbuild.n;
+  pbuild.ex.push([n,se,$("perso_r").value]);$("perso_e").value="";$("perso_s").value="";renderPerso()};
+$("perso_l").onclick=e=>{const pd=e.target.dataset.pdel;
+  if(pd!=null&&pbuild){pbuild.ex.splice(+pd,1);renderPerso();return}
+  const pu=e.target.closest("[data-puse]");
+  if(pu){S.pgSel=pu.dataset.puse;S.pgCat="perso";save();renderPg();toast("Sélectionné : "+pu.dataset.puse);return}
+  const dp=e.target.closest("[data-pdelprog]");
+  if(dp){S.perso=perso().filter(p=>p.n!==dp.dataset.pdelprog);if(S.pgSel===dp.dataset.pdelprog)S.pgSel="Full body · Standard";save();renderPg();renderPerso();toast("Programme supprimé")}};
+$("perso_save").onclick=()=>{if(!pbuild||!pbuild.ex.length)return;
+  const n=(pbuild.n.trim()||"Mon programme");
+  const prog={n,d:"≈ "+Math.max(15,pbuild.ex.length*6)+" min",ex:pbuild.ex.slice(),t:"Ton programme, ton ordre, tes repos."};
+  const old=perso().findIndex(p=>p.n===n);
+  if(old>=0)S.perso[old]=prog;else S.perso.push(prog);
+  pbuild=null;$("perso_n").value="";$("perso_e").value="";$("perso_s").value="";
+  save();S.pgSel=n;S.pgCat="perso";renderPg();renderPerso();toast("💾 Programme enregistré : "+n)};
 /* Explications et alternatives de l'exercice en cours */
 function updExInfo(){const w=$("exinfoW");if(!w)return;const e=EXINFO[curM];
   if(!e){w.hidden=true;return}
@@ -556,7 +602,22 @@ function upLast(){const l=lastOf(curM);
   $("last").textContent=l?`Dernière fois : ${fn(l.w)} kg × ${rp(l)} (${fd(l.d)}). ${sug(l)}`:"Première fois sur cet exercice."}
 const rp=x=>x.rs?x.rs.join("/")+" rép.":x.r+" rép. × "+x.s+" séries";
 const sug=l=>{const lo=l.rs?Math.min(...l.rs):l.r;return lo>=12?"Suggestion : "+fn(l.w+2.5)+" kg, vise 8 rép.":"Suggestion : "+fn(l.w)+" kg, vise "+(lo+1)+" rép. par série."};
-function renderSeance(){renderCh();renderPg();renderDaily();renderPlan();
+function renderSeance(){renderCh();renderPg();renderDaily();renderPlan();renderPerso();
+  const sc=$("santecard");
+  if(sc){const mals=((S.profile||{}).maladies||[]).filter(x=>x&&x!=="aucune");
+    if(mals.length){const NL={asthme:"Asthme : échauffe-toi progressivement, garde ton traitement à proximité, et évite l'air froid sec pendant l'effort si ça te déclenche.",
+      diabete:"Diabète : privilégie des séances progressives, avec des glucides disponibles autour de l'effort. Contrôle ta glycémie si ton médecin te le prescrit.",
+      hypertension:"Hypertension : évite les charges maximales et l'apnée (bloque ta respiration), privilégie des séances régulières et modérées avec des respirations libres.",
+      cardiaque:"Problème cardiaque : séances modérées et progressives uniquement, et n'entraîne-toi jamais seul(e) au début. L'avis de ton médecin est indispensable.",
+      epilepsie:"Épilepsie : entraîne-toi avec quelqu'un quand c'est possible, évite les exercices à risque de chute sans surveillance et signale-le aux encadrants de la salle.",
+      thyroide:"Thyroïde : ton énergie peut varier d'un jour à l'autre — choisis la séance selon ton énergie du jour, pas selon le programme.",
+      grossesse:"Grossesse : privilégie marche, mobilité et renforcement doux, évite les exercices sur le dos allongé tard dans la grossesse. Programme à faire valider par une sage-femme ou un gynécologue.",
+      autre:"Avec ta condition médicale : adapte l'intensité, arrête la séance en cas de malaise, douleur dans la poitrine ou vertige, et demande l'avis de ton médecin."};
+      $("santetxt").innerHTML=mals.map(m=>`<span style="display:block;padding:4px 0">${esc(NL[m]||NL.autre)}</span>`).join("")
+       +(S.profile.malTxt?`<p class="hint" style="margin:8px 0 0">Précisé au bilan : ${esc(S.profile.malTxt)}</p>`:"")
+       +'<p class="hint" style="margin:8px 0 0"><b>Arrête immédiatement</b> et consulte en cas de : douleur ou oppression dans la poitrine, malaise, vertige, essoufflement anormal, douleur qui tire dans le bras ou la mâchoire.</p>';
+      sc.hidden=false}
+    else sc.hidden=true}
   if(S.bilanLast){$("tipcard").hidden=false;$("tiptxt").textContent=smartTip()}
   const d=$("d").value||today(),L=S.sessions.filter(x=>x.d===d).sort((a,b)=>a.t-b.t);
   $("dayT").textContent=d===today()?"Aujourd’hui":"Séance du "+fd(d);
@@ -864,7 +925,7 @@ function renderNut(){
    base=Math.max(F?1.6:2,.03*w),dm=ld.dm||60,add=Math.min(1.5,Math.max(.3,.5*dm/60));
   nutP=Math.round(P);S.profile.hyd=base+add;S.profile.kcal=Math.round(tgt);save();
   const cat=b<18.5?"insuffisance pondérale":b<25?"corpulence normale":b<30?"surpoids":"obésité";
-  let x='<div class="card"><h2>💡 Conseil du jour</h2><p style="margin:0">'+esc(smartTip())+'</p></div><div class="card"><h2>Tes besoins</h2><div class="stats">'
+  let x='<div class="card"><h2>Tes besoins</h2><div class="stats">'
    +st(r10(tgt)+" kcal","Objectif · "+G[0],"var(--acc)")+st(r10(tdee)+" kcal","Maintien")+st(Math.round(P)+" g","Protéines / jour")+"</div>"
    +`<div style="display:flex;height:12px;border-radius:6px;overflow:hidden;margin:4px 0 10px">${mac.map(q=>`<div style="flex:${q[1]*q[2]};background:${q[3]}"></div>`).join("")}</div>`
    +`<ul>${mac.map(q=>`<li><span><b style="color:${q[3]}">${q[0]}</b><small>${Math.round(q[1]*q[2])} kcal · ${Math.round(100*q[1]*q[2]/mac.reduce((t,q)=>t+q[1]*q[2],0))} %</small></span><b>${Math.round(q[1])} g</b></li>`).join("")}</ul>`
@@ -877,8 +938,8 @@ function renderNut(){
    +`<li style="display:block"><b>Lipides</b><small>Hormones et satiété, à ne pas couper. Huile d’olive, poissons, oléagineux. ≈ ${Math.round(Lp)} g/jour, minimum ${fn(.8*w)} g.</small></li>`
    +`<li style="display:block"><b>Calories</b><small>Un déficit ou un surplus léger bat toujours un extrême : ${gl==="fat"?"−15 %":"+"+Math.round(G[1]*100)+" %"} suffit.</small></li></ul>`
    +`<li style="display:block"><b>Calories</b><small>Un déficit ou un surplus léger bat toujours un extrême : ${gl==="fat"?"−15 %":"+"+Math.round(G[1]*100)+" %"} suffit.</small></li></ul></div>`;
-  x+='<div class="card"><h2>🍽️ Tous les aliments</h2><p class="hint" style="margin:0 0 8px">Parcouris les catégories et ajoute ce que tu manges : le journal du jour se remplit ici, sans rien à taper.</p><div class="chips" id="fcat" style="margin-bottom:10px"></div><div id="flist"></div></div>';
-  x+='<div class="card"><h2>📔 Journal du jour</h2><div id="fjout"></div></div>';
+  x+='<div class="card"><h2>🍽️ Ce que j\'ai mangé</h2><p class="hint" style="margin:0 0 8px">Parcouris les catégories, ajoute ce que tu as mangé : l\'app calcule automatiquement tes apports du jour (calories, protéines, glucides, lipides).</p><div class="chips" id="fcat" style="margin-bottom:10px"></div><div id="flist"></div></div>';
+  x+='<div class="card"><h2>📔 Apports du jour</h2><div id="fjout"></div></div>';
   x+=renderPLA();
   $("nout").innerHTML=x;renderCatalog();renderFlog()}
 /* ===== Catalogue d'aliments (par catégories, portions simples) ===== */
@@ -889,7 +950,7 @@ function renderCatalog(){
   $("fcat").innerHTML=FCATS.map(c=>`<button type="button" class="sc${c===cat?" on":""}" data-fc="${esc(c)}">${esc(c)}</button>`).join("");
   $("flist").innerHTML=Object.keys(FOODS).filter(k=>cat==="Tout"||FOODS[k].c===cat).map(k=>{
     const F=FOODS[k],m=F.pg/100;
-    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--soft)"><div style="flex:1;min-width:0"><b style="font-size:14px">${esc(k)}</b><small style="display:block">${Math.round(F.k[0]*m)} kcal · ${fn(F.k[1]*m)} g prot · ${fn(F.k[2]*m)} g gluc · ${fn(F.k[3]*m)} g lip${F.k[4]>=2?" · "+fn(F.k[4]*m)+" g fibres":""}${F.k[5]?" · "+esc(F.k[5]):""}</small></div><input type="number" value="1" min="0.5" step="0.5" aria-label="Nombre de portions de ${esc(k)}" style="width:56px;min-height:36px;text-align:center;padding:4px"><button type="button" class="sc" data-fadd="${esc(k)}">+</button></div>`}).join("");
+    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--soft)"><div style="flex:1;min-width:0"><b style="font-size:14px">${esc(k)}</b><small style="display:block">${esc(F.por)}</small></div><input type="number" value="1" min="0.5" step="0.5" aria-label="Nombre de portions de ${esc(k)}" style="width:56px;min-height:36px;text-align:center;padding:4px"><button type="button" class="sc" data-fadd="${esc(k)}">+</button></div>`}).join("");
   $("fcat").onclick=e=>{const b=e.target.closest("[data-fc]");if(!b)return;S.fcat=b.dataset.fc;save();renderCatalog()};
   $("flist").onclick=e=>{const b=e.target.closest("[data-fadd]");if(!b)return;
     const k=b.dataset.fadd,F=FOODS[k],q=Math.max(.5,parseFloat(b.parentElement.querySelector("input").value)||1),m=F.pg/100,d=today();
@@ -930,6 +991,11 @@ function renderPLA(){
   return '<div class="card"><h2>📋 Exemples de PLA (plans alimentaires)</h2><p class="hint" style="margin:0 0 10px">Des journées types selon l’objectif : ce sont des repères, pas des règles. Ajuste selon ta faim et l’évolution de ton poids.</p>'
    +PLA.map(p=>`<details${p.id===sel?" open":""} style="margin:0;border-top:1px solid var(--soft);padding-top:8px"><summary style="color:var(--ink)">${p.ic} ${esc(p.n)}${p.id===sel?" · <b>choisi</b>":""}</summary><div style="margin-top:8px"><p class="hint" style="margin:0 0 6px">${esc(p.desc)}</p><ul>${p.meals.map(m=>`<li style="display:block;padding:5px 0"><b>${m[0]}</b><small>${esc(m[1])}</small></li>`).join("")}</ul><p class="hint">📊 ${esc(p.mac)}</p><button type="button" class="sc${p.id===sel?" on":""}" data-pla="${p.id}">${p.id===sel?"Choisi ✓":"Choisir ce PLA"}</button></div></details>`).join("")+"</div>"}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-pla]");if(!b)return;S.plaSel=S.plaSel===b.dataset.pla?null:b.dataset.pla;save();renderNut();toast(S.plaSel?"PLA choisi : "+(PLA.find(p=>p.id===S.plaSel)||{}).n:"PLA retiré")});
+/* Bouton "Faire cette séance" (cycle → séance conseillée) */
+document.addEventListener("click",e=>{const b=e.target.closest("[data-pggo]");if(!b)return;
+  S.pgSel=b.dataset.pggo;S.pgCat=(PMETA[b.dataset.pggo]||{}).cat||"all";save();go("seance");
+  if(!PGW.concat(perso()).some(p=>p.n===b.dataset.pggo))toast("⚠️ Programme non trouvé : "+b.dataset.pggo);
+  else toast("Séance prête : "+b.dataset.pggo)});
 /* ===== Corps : poids + objectif ===== */
 function renderBody(){
   if(S.profile.bgoal&&!$("bgo").value)$("bgo").value=S.profile.bgoal;
@@ -981,9 +1047,37 @@ const PHN=[
  "🥗 Nutrition : rien de spécial à changer, garde tes repères habituels.",
  "🥗 Nutrition : l'appétit augmente souvent en phase lutéale. Autorise des portions un peu plus grandes d'aliments rassasiants (fibres, protéines) : pas de culpabilité à avoir, les envies sont hormonales."];
 const cycSym=(d=today())=>(S.cyc&&S.cyc.sym&&S.cyc.sym[d])||null;
+/* Phase du cycle pour n'importe quelle date (passée, du jour, future = prévision) */
+function cycDayInfo(d){const C=S.cyc;if(!C)return null;const cl=C.cl||28,pl=C.pl||5,sts=(C.starts||[]).sort();
+  if(!sts.length)return null;
+  const first=sts[0],diff=dn(d)-dn(first);
+  if(diff<0)return null;
+  const n=diff%cl+1,ov=cl-14,i=n<=pl?0:n<ov-1?1:n<=ov+1?2:3;
+  return{n,i,prev:diff<cl}}
+/* Calendrier mensuel façon Clue : phases passées + prévisions */
+function cycCalendar(){
+  const C=S.cyc;if(!C||!(C.starts||[]).length)return"";
+  const now=new Date(),y=now.getFullYear(),m=now.getMonth();
+  const shift=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate();
+  const COL=["background:#e5533d;color:#fff","background:var(--good-soft)","background:var(--acc-soft)","background:var(--corps-soft)"];
+  let cells="";
+  for(let i=0;i<shift;i++)cells+="<span></span>";
+  for(let d=1;d<=days;d++){
+    const ds=y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    const info=cycDayInfo(ds),isT=ds===today();
+    cells+=`<span style="display:flex;align-items:center;justify-content:center;height:30px;border-radius:8px;font-size:12px;font-weight:${isT?800:400};${info?COL[info.i]:""}${isT?";outline:2px solid var(--acc);outline-offset:-2px":""}">${d}</span>`}
+  const last=(C.starts||[]).sort().pop(),k=Math.floor((dn(today())-dn(last))/(C.cl||28));
+  const next=fd(new Date(Date.parse(last+"T12:00")+(k+1)*(C.cl||28)*864e5).toISOString().slice(0,10));
+  return `<h2 style="margin-top:14px">📅 Calendrier du mois</h2><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center">${["L","M","M","J","V","S","D"].map(x=>`<small style="color:var(--mute);font-weight:800">${x}</small>`).join("")}${cells}</div><p class="hint" style="margin-top:8px">🩸 règles · 🌱 folliculaire · 🥚 ovulation · 🌙 lutéale — les jours à venir sont des <b>prévisions</b> (approximatives : chaque cycle peut varier). Prochaines règles prévues vers le <b>${next}</b>.</p>`}
+/* Séances conseillées selon la phase (inspiré des apps type Clue) */
+const CYCPH_EX=[
+ {t:"🩸 Pendant les règles",tip:"Si tu es fatiguée ou douloureuse, la marche et la mobilité suffisent. Si tu te sens bien, entraîne-toi normalement.",ex:[["Mobilité · Full body","15 min de mobilité douce"],["Sans équipement · Full body","léger, sans forcer"],["Full body · Rapide","salle avec ~2/3 des charges"],["Sans équipement · Abdos et gainage","volume réduit"]]},
+ {t:"🌱 Phase folliculaire",tip:"L'énergie remonte : c'est la fenêtre idéale pour pousser les charges ou le volume.",ex:[["Full body · Complet","le meilleur moment pour progresser"],["Jambes et fessiers","charges en hausse"],["Maison · Cardio et HIIT","si l'énergie est là"],["Street workout · Intermédiaire","si tu pratiques le street"]]},
+ {t:"🥚 Autour de l'ovulation",tip:"Forme souvent au top : parfait pour une séance dynamique, avec un échauffement long et soigné.",ex:[["Street workout · Intermédiaire","séance dynamique"],["Maison · Cardio et HIIT","format intervalles"],["Full body · Standard","tente une progression"]]},
+ {t:"🌙 Phase lutéale",tip:"Écoute ton corps : garde l'habitude, allège le volume si besoin — la force reste là.",ex:[["Mobilité · Full body","récupération"],["Sans équipement · Full body","modéré"],["Full body · Standard","volume réduit si fatiguée"]]}];
 function renderCyc(){const c=cycInfo(),C=S.cyc||{},st=(C.starts||[]).slice(-1)[0]||"",v=(C.ent||{})[st]||{},sd=cycSym();
  const symTxt=sd?`<p class="hint" style="margin:8px 0 0">Symptômes du jour : ${sd.s.length?esc(sd.s.join(", ")):"aucun"} · Douleurs : ${esc(sd.dl)}${sd.inb?" <b>(inhabituelles ou très fortes)</b>":""}</p>`:"";
- $("cyb").innerHTML=c?`<h2>Aujourd’hui : jour ${c.n} du cycle</h2><div style="font-size:1.3em;margin:6px 0 10px">${c.ph.e} ${c.ph.n}</div><div class="cbar"><i style="width:${Math.round(100*c.n/c.cl)}%"></i></div><ul>${c.ph.t.map(x=>`<li><span>${x}</span></li>`).join("")}</ul>${symTxt}<p class="hint" style="margin:8px 0 0">${PHN[c.i]}</p><p class="hint" style="margin:8px 0 0">💡 ${esc(smartTip())}</p><p class="hint">Repères généraux : chaque cycle est différent, écoute ton corps.</p>`:'<h2>Cycle</h2><p class="hint">Renseigne le début de tes dernières règles ci-dessous pour voir ton jour de cycle et ta phase.</p>';
+ $("cyb").innerHTML=c?`<h2>Aujourd’hui : jour ${c.n} du cycle</h2><div style="font-size:1.3em;margin:6px 0 10px">${c.ph.e} ${c.ph.n}</div><div class="cbar"><i style="width:${Math.round(100*c.n/c.cl)}%"></i></div><ul>${c.ph.t.map(x=>`<li><span>${x}</span></li>`).join("")}</ul>${symTxt}<p class="hint" style="margin:8px 0 0">${PHN[c.i]}</p><p class="hint" style="margin:8px 0 0">💡 ${esc(smartTip())}</p><p class="hint">Repères généraux : chaque cycle est différent, écoute ton corps.</p>${cycCalendar()}`:'<h2>Cycle</h2><p class="hint">Renseigne le début de tes dernières règles ci-dessous pour voir ton jour de cycle et ta phase.</p>';
  const row=(l,h)=>`<div style="margin-top:10px"><label>${l}</label>${h}</div>`;
  const myr=cycSym();
  $("cyf").innerHTML=row("Début des dernières règles",`<input id="cy_s" type="date" value="${st}">`)+row("Durée moyenne des règles (jours)",`<input id="cy_p" type="number" min="1" max="12" value="${C.pl||5}">`)+row("Durée moyenne du cycle (jours)",`<input id="cy_l" type="number" min="20" max="45" value="${C.cl||28}">`)+row("Intensité des règles",`<select id="cy_i">${opt(["légère","normale","abondante"],v.i||"normale")}</select>`)+row("Douleurs pendant les règles",`<select id="cy_d">${opt(["aucune","légères","modérées","fortes"],v.d||"aucune")}</select>`)+'<button class="btn" id="cy_ok">Enregistrer</button>'
@@ -994,6 +1088,8 @@ function renderCyc(){const c=cycInfo(),C=S.cyc||{},st=(C.starts||[]).slice(-1)[0
   +'<button class="btn" id="cy_ok2">Enregistrer mon état du jour</button>'
   +((C.starts||[]).length?"<ul>"+C.starts.slice(-4).reverse().map(d=>`<li><span><b>${fd(d)}</b><small>${(C.ent||{})[d]?(C.ent[d].i+", douleurs "+C.ent[d].d):""}</small></span></li>`).join("")+"</ul>":"")
   +(sd&&(sd.dl==="fortes"||sd.inb)?`<p class="hint" style="color:#e5533d"><b>Douleurs fortes ou inhabituelles signalées :</b> réduis l'intensité aujourd'hui (marche, mobilité, étirements doux), la chaleur locale peut aider. Si les douleurs sont invalidantes, se répètent ou s'accompagnent de saignements importants, consulte un professionnel de santé.</p>`:"")
+  +'<h2 style="margin-top:16px">🎯 Séances conseillées selon ta phase</h2>'
+  +CYCPH_EX.map((g,gi)=>`<details${c&&c.i===gi?" open":""} style="margin:0;border-top:1px solid var(--soft);padding-top:8px"><summary style="color:var(--ink)">${esc(g.t)}</summary><div style="margin-top:6px"><p class="hint" style="margin:0 0 6px">${esc(g.tip)}</p><ul>${g.ex.map(e=>`<li><span><b>${esc(e[0])}</b><small>${esc(e[1])}</small></span><button type="button" class="sc" data-pggo="${esc(e[0])}">Faire cette séance</button></li>`).join("")}</ul></div></details>`).join("")
   +'<h2 style="margin-top:16px">🔬 Ce que disent les études</h2><ul style="display:block">'+CYCSCI.map(x=>`<li style="display:block;padding:8px 0"><small style="color:var(--ink)">${x}</small></li>`).join("")+'</ul><p class="hint">Sources : McNulty et al. 2020 (Sports Med) · Colenso-Semple et al. 2023 · Niering et al. 2024 · Carmichael et al. 2021. Chaque corps réagit différemment : ce sont des moyennes, pas des règles absolues.</p>'
   +'<p class="hint" style="color:var(--ink)"><b>⚠️ Avertissement :</b> ces conseils sont généraux et ne remplacent pas un avis médical. En cas de douleurs très fortes, inhabituelles, de saignements importants ou de symptômes persistants, consulte un professionnel de santé.</p>';
  $("cy_sym").onclick=e=>{const b=e.target.closest("[data-sym]");if(b)b.classList.toggle("on")};
@@ -1014,7 +1110,10 @@ const QS=[
 const qth=q=>q.th[gen()]||q.th.h.map((x,i)=>(x+q.th.f[i])/2);
 const qlv=(q,v,bw)=>{const x=q.rel?v/bw:v;return qth(q).filter(a=>q.up?x>=a:x<=a).length};
 /* ===== Chips à choix multiples dans le bilan ===== */
-document.querySelectorAll("#onb .chips").forEach(g=>g.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;b.classList.toggle("on")}));
+document.querySelectorAll("#onb .chips").forEach(g=>g.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(g.id==="on_mal"){if(b.dataset.v==="aucune"){g.querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on")}
+    else{const a=g.querySelector('[data-v="aucune"]');if(a)a.classList.remove("on");b.classList.toggle("on")}return}
+  b.classList.toggle("on")}));
 const onChips=id=>[...$(id).querySelectorAll("button.on")].map(b=>b.dataset.v);
 const onSetChips=(id,arr)=>$(id).querySelectorAll("button").forEach(b=>b.classList.toggle("on",(arr||[]).includes(b.dataset.v)));
 $("on_sx").onchange=()=>{$("on_cycw").hidden=$("on_sx").value!=="f"};
@@ -1028,6 +1127,7 @@ function prefillOnb(){const P=S.profile||{},L=S.bilanLast||{};
  $("on_meals").value=String(L.meals||P.meals||3);$("on_snack").value=L.snack||P.snack||"parfois";$("on_diet").value=L.diet||P.diet||"aucun";
  $("on_sleep").value=L.sleep||P.sleep||"moyen";$("on_stress").value=L.stress||P.stress||"moyen";$("on_energy").value=L.energy||P.energy||"moyenne";
  $("on_style").value=L.style||P.style||"simple";
+ onSetChips("on_mal",L.maladies||P.maladies);$("on_maltxt").value=L.malTxt||P.malTxt||"";
  $("on_cyc").checked=!!S.cyc;
  $("onerr").textContent=""}
 $("onbgo").onclick=()=>{
@@ -1038,7 +1138,7 @@ $("onbgo").onclick=()=>{
   if(!(w>=30&&w<=300)){$("onerr").textContent="Indique ton poids (30 à 300 kg).";$("on_w").focus();return}
   $("onerr").textContent="";
   S.profile.g=sx;S.profile.sx=sx;
-  const P={time:parseInt($("on_time").value)||45,gear:onChips("on_gear"),place:onChips("on_place"),likes:onChips("on_like"),pain:onChips("on_pain"),meals:$("on_meals").value,snack:$("on_snack").value,diet:$("on_diet").value,sleep:$("on_sleep").value,stress:$("on_stress").value,energy:$("on_energy").value,style:$("on_style").value};
+  const P={time:parseInt($("on_time").value)||45,gear:onChips("on_gear"),place:onChips("on_place"),likes:onChips("on_like"),pain:onChips("on_pain"),meals:$("on_meals").value,snack:$("on_snack").value,diet:$("on_diet").value,sleep:$("on_sleep").value,stress:$("on_stress").value,energy:$("on_energy").value,style:$("on_style").value,maladies:onChips("on_mal"),malTxt:$("on_maltxt").value.trim()};
   const V={},lv=[];
   QS.forEach(q=>{const v=parseFloat($(q.id).value);if(v>0){if(q.rel&&!(w>0))return;V[q.id]=v;lv.push({q,v,l:qlv(q,v,w)})}});
   const avg=lv.length?lv.reduce((t,x)=>t+x.l,0)/lv.length:0;
@@ -1058,6 +1158,8 @@ $("onbgo").onclick=()=>{
   if(P.snack==="souvent")plan.push("Grignotage : remplace une collation sucrée par un fruit + une source de protéines");
   const pains=P.pain.filter(x=>x&&x!=="aucune");
   if(pains.length)plan.push("Douleurs signalées ("+pains.join(", ")+") : alternatives plus sûres proposées dans les séances");
+  const mals=(P.maladies||[]).filter(x=>x&&x!=="aucune");
+  if(mals.length)plan.push("Conditions médicales ("+mals.join(", ")+") : intensité adaptée, demande l'avis de ton médecin pour les séances intenses");
   if(avg>=2.5)forts.push("Niveau "+LV[Math.round(avg)].toLowerCase()+" sur tes tests");
   if(P.sleep==="bon")forts.push("bon sommeil");
   if(fq>=3)forts.push("fréquence d'entraînement ambitieuse");
@@ -1087,6 +1189,14 @@ function smartTips(){
   if(pains.length)out.push("Tu as signalé des douleurs ("+pains.join(", ")+") : choisis les alternatives plus sûres dans le programme. Si la douleur persiste, parles-en à un professionnel de santé.");
   if(P.sleep==="faible")out.push("Ton sommeil semble difficile : une séance légère ce soir (marche, étirements) t'aidera plus qu'une séance intense.");
   if(P.stress==="fort")out.push("Le stress pèse en ce moment : 10 minutes de respiration lente ou de mobilité font baisser la tension, vraiment.");
+  const mals=(P.maladies||[]).filter(x=>x&&x!=="aucune");
+  if(mals.includes("asthme"))out.push("Asthme : échauffe-toi toujours progressivement (5 à 10 min) et garde ton traitement à proximité pendant la séance.");
+  if(mals.includes("diabete"))out.push("Diabète : des glucides autour de la séance et une intensité progressive — l'avis de ton médecin est précieux pour cadrer tout ça.");
+  if(mals.includes("hypertension")||mals.includes("cardiaque"))out.push("Cœur ou tension : évite les charges maximales et l'apnée, privilégie des séances régulières et modérées (avis médical recommandé).");
+  if(mals.includes("epilepsie"))out.push("Épilepsie : entraîne-toi si possible avec quelqu'un, et évite les exercices à risque de chute sans surveillance.");
+  if(mals.includes("thyroide"))out.push("Thyroïde : l'énergie peut varier d'un jour à l'autre — ajuste le volume de la séance à ton énergie du jour.");
+  if(mals.includes("grossesse"))out.push("Grossesse : privilégie marche, mobilité et renforcement doux, et fais valider ton programme par une sage-femme ou un gynécologue.");
+  if(mals.includes("autre"))out.push("Avec ta condition médicale : adapte l'intensité, écoute ton corps et demande l'avis de ton médecin pour les séances intenses.");
   const fl=(S.flog||{})[t]||[],prot=fl.reduce((a,x)=>a+(x.prot||0),0);
   if(nutP&&prot&&prot<nutP*.6)out.push("Ton apport en protéines du jour semble faible ("+Math.round(prot)+" g sur "+nutP+" g visés) : ajoute une source de protéines à ton dîner.");
   if(P.snack==="souvent")out.push("Grignotage fréquent : garde des collations simples sous la main (fruit + yaourt, amandes) plutôt que des produits sucrés.");
