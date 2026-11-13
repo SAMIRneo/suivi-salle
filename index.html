@@ -163,6 +163,31 @@ summary::-webkit-details-marker{display:none}
       <div style="margin-top:10px"><label for="on_qbp">Développé couché max (kg)</label><input id="on_qbp" type="number" inputmode="decimal" min="0"></div>
     </details>
   </div>
+  <div class="card">
+    <details>
+      <summary>🎯 Ta pratique (matériel, envies, contraintes)</summary>
+      <div style="margin-top:8px"><label for="on_time">Temps disponible par séance</label><select id="on_time"><option value="30">≈ 30 min</option><option value="45" selected>≈ 45 min</option><option value="60">≈ 1 h</option><option value="75">1 h et plus</option></select></div>
+      <div style="margin-top:10px"><label>Matériel disponible (plusieurs choix possibles)</label><div class="chips" id="on_gear" style="margin-top:6px"><button type="button" data-v="salle">Salle de sport</button><button type="button" data-v="corps">Poids du corps</button><button type="button" data-v="halteres">Haltères</button><button type="button" data-v="elastiques">Élastiques</button><button type="button" data-v="traction">Barre de traction</button><button type="button" data-v="paralleles">Barres parallèles</button></div></div>
+      <div style="margin-top:10px"><label>Où t'entraînes-tu ?</label><div class="chips" id="on_place" style="margin-top:6px"><button type="button" data-v="salle">Salle de sport</button><button type="button" data-v="maison">À la maison</button><button type="button" data-v="parc">Parc / extérieur</button><button type="button" data-v="street">Aire de street workout</button></div></div>
+      <div style="margin-top:10px"><label>Tu aimes particulièrement (plusieurs choix)</label><div class="chips" id="on_like" style="margin-top:6px"><button type="button" data-v="muscu">Musculation</button><button type="button" data-v="cardio">Cardio</button><button type="button" data-v="hiit">HIIT</button><button type="button" data-v="mobilite">Mobilité</button><button type="button" data-v="marche">Marche</button><button type="button" data-v="course">Course</button><button type="button" data-v="street">Street workout</button></div></div>
+      <div style="margin-top:10px"><label>Contraintes physiques (douleurs, blessures)</label><div class="chips" id="on_pain" style="margin-top:6px"><button type="button" data-v="aucune">Aucune</button><button type="button" data-v="dos">Dos</button><button type="button" data-v="genoux">Genoux</button><button type="button" data-v="epaules">Épaules</button><button type="button" data-v="poignets">Poignets</button></div><p class="hint" style="margin-top:6px">L'app proposera des alternatives plus sûres. En cas de douleur, consulte un professionnel de santé.</p></div>
+    </details>
+  </div>
+  <div class="card">
+    <details>
+      <summary>🥗 Habitudes de vie (alimentation, sommeil, énergie)</summary>
+      <div class="row" style="margin-top:8px"><div><label for="on_meals">Repas par jour</label><select id="on_meals"><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5 ou plus</option></select></div><div><label for="on_snack">Grignotage</label><select id="on_snack"><option value="rare">Rare</option><option value="parfois" selected>Parfois</option><option value="souvent">Souvent</option></select></div></div>
+      <div style="margin-top:10px"><label for="on_diet">Alimentation particulière</label><select id="on_diet"><option value="aucun">Aucune en particulier</option><option value="vegetarien">Végétarien</option><option value="vegan">Végétalien</option><option value="sanslactose">Sans lactose</option><option value="budget">Petit budget</option></select></div>
+      <div class="row" style="margin-top:10px"><div><label for="on_sleep">Sommeil</label><select id="on_sleep"><option value="bon">Bon</option><option value="moyen" selected>Moyen</option><option value="faible">Difficile</option></select></div><div><label for="on_stress">Stress</label><select id="on_stress"><option value="faible">Faible</option><option value="moyen" selected>Moyen</option><option value="fort">Fort</option></select></div><div><label for="on_energy">Énergie</label><select id="on_energy"><option value="bonne">Bonne</option><option value="moyenne" selected>Moyenne</option><option value="faible">Faible</option></select></div></div>
+    </details>
+  </div>
+  <div class="card">
+    <details>
+      <summary>💬 Mes conseils préférés</summary>
+      <div style="margin-top:8px"><label for="on_style">Style de conseils</label><select id="on_style"><option value="simple" selected>Simples et pratiques</option><option value="detaille">Détaillés</option><option value="motivant">Motivants</option><option value="science">Scientifiques (avec les études)</option></select></div>
+      <label class="chk" id="on_cycw" hidden><input type="checkbox" id="on_cyc"> Suivre mon cycle dans l'app (Corps → Cycle)</label>
+    </details>
+  </div>
   <button class="btn" id="onbgo">Démarrer</button>
   <p class="err" id="onerr" role="alert" tabindex="-1"></p>
 </section>
@@ -179,6 +204,7 @@ summary::-webkit-details-marker{display:none}
     <ul id="dailylist"></ul>
   </div>
   <div class="card"><h2>🎯 Défi de la semaine</h2><p class="hint" id="chh" style="margin:0 0 8px"></p><ul id="chl"></ul></div>
+  <div class="card" id="plancard" hidden><h2>📋 Mon plan d'action</h2><div id="planout"></div><button class="btn alt" id="planedit">Modifier mon bilan</button></div>
   <div class="card">
     <h2>Programme du jour</h2>
     <label for="pgp" class="hint" style="margin-bottom:4px;display:block">Choisis selon ton temps aujourd'hui</label>
@@ -436,7 +462,7 @@ function upLast(){const l=lastOf(curM);
   $("last").textContent=l?`Dernière fois : ${fn(l.w)} kg × ${rp(l)} (${fd(l.d)}). ${sug(l)}`:"Première fois sur cet exercice."}
 const rp=x=>x.rs?x.rs.join("/")+" rép.":x.r+" rép. × "+x.s+" séries";
 const sug=l=>{const lo=l.rs?Math.min(...l.rs):l.r;return lo>=12?"Suggestion : "+fn(l.w+2.5)+" kg, vise 8 rép.":"Suggestion : "+fn(l.w)+" kg, vise "+(lo+1)+" rép. par série."};
-function renderSeance(){renderCh();renderPg();renderDaily();
+function renderSeance(){renderCh();renderPg();renderDaily();renderPlan();
   const d=$("d").value||today(),L=S.sessions.filter(x=>x.d===d).sort((a,b)=>a.t-b.t);
   $("dayT").textContent=d===today()?"Aujourd’hui":"Séance du "+fd(d);
   $("dayL").innerHTML=L.length?L.map(x=>`<li><span><b>${esc(x.m)}</b><small>${fn(x.w)} kg × ${rp(x)}${x.rpe?" · RPE "+x.rpe:""}</small></span><span><button class="x" data-edit="${x.id}" aria-label="Modifier">✎</button><button class="x" data-del="${x.id}" aria-label="Supprimer">×</button></span></li>`).join(""):'<p class="empty">Rien d’enregistré ce jour-là.</p>';
@@ -750,11 +776,22 @@ const QS=[
  {id:"on_qgi",n:"Gainage max",u:"s",up:1,th:{h:[20,45,90,150],f:[20,45,90,150]},tip:"Planche 3×30 s en ajoutant 5 s par semaine, puis gainage latéral et crunch à la poulie."}];
 const qth=q=>q.th[gen()]||q.th.h.map((x,i)=>(x+q.th.f[i])/2);
 const qlv=(q,v,bw)=>{const x=q.rel?v/bw:v;return qth(q).filter(a=>q.up?x>=a:x<=a).length};
+/* ===== Chips à choix multiples dans le bilan ===== */
+document.querySelectorAll("#onb .chips").forEach(g=>g.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;b.classList.toggle("on")}));
+const onChips=id=>[...$(id).querySelectorAll("button.on")].map(b=>b.dataset.v);
+const onSetChips=(id,arr)=>$(id).querySelectorAll("button").forEach(b=>b.classList.toggle("on",(arr||[]).includes(b.dataset.v)));
+$("on_sx").onchange=()=>{$("on_cycw").hidden=$("on_sx").value!=="f"};
 function prefillOnb(){const P=S.profile||{},L=S.bilanLast||{};
- $("on_sx").value=P.g&&P.g!=="n"?P.g:"n";$("on_a").value=P.a||"";$("on_h").value=P.h||"";
+ $("on_sx").value=P.g&&P.g!=="n"?P.g:"n";$("on_sx").onchange();$("on_a").value=P.a||"";$("on_h").value=P.h||"";
  $("on_w").value=P.w||((S.body.slice().sort((a,b)=>a.d.localeCompare(b.d)).pop()||{}).w||"");
  $("on_gl").value=P.goal||"forme";$("on_fq").value=L.fq||P.fq||3;$("on_exp").value=P.exp||"d";
  const V=L.v||{};$("on_qpu").value=V.on_qpu||"";$("on_qtr").value=V.on_qtr||"";$("on_qgi").value=V.on_qgi||"";$("on_qsq").value=V.on_qsq||"";$("on_qbp").value=V.on_qbp||"";
+ $("on_time").value=String(L.time||P.time||45);
+ onSetChips("on_gear",L.gear||P.gear);onSetChips("on_place",L.place||P.place);onSetChips("on_like",L.likes||P.likes);onSetChips("on_pain",L.pain||P.pain);
+ $("on_meals").value=String(L.meals||P.meals||3);$("on_snack").value=L.snack||P.snack||"parfois";$("on_diet").value=L.diet||P.diet||"aucun";
+ $("on_sleep").value=L.sleep||P.sleep||"moyen";$("on_stress").value=L.stress||P.stress||"moyen";$("on_energy").value=L.energy||P.energy||"moyenne";
+ $("on_style").value=L.style||P.style||"simple";
+ $("on_cyc").checked=!!S.cyc;
  $("onerr").textContent=""}
 $("onbgo").onclick=()=>{
   S.profile=S.profile||{};
@@ -764,16 +801,51 @@ $("onbgo").onclick=()=>{
   if(!(w>=30&&w<=300)){$("onerr").textContent="Indique ton poids (30 à 300 kg).";$("on_w").focus();return}
   $("onerr").textContent="";
   S.profile.g=sx;S.profile.sx=sx;
+  const P={time:parseInt($("on_time").value)||45,gear:onChips("on_gear"),place:onChips("on_place"),likes:onChips("on_like"),pain:onChips("on_pain"),meals:$("on_meals").value,snack:$("on_snack").value,diet:$("on_diet").value,sleep:$("on_sleep").value,stress:$("on_stress").value,energy:$("on_energy").value,style:$("on_style").value};
   const V={},lv=[];
   QS.forEach(q=>{const v=parseFloat($(q.id).value);if(v>0){if(q.rel&&!(w>0))return;V[q.id]=v;lv.push({q,v,l:qlv(q,v,w)})}});
   const avg=lv.length?lv.reduce((t,x)=>t+x.l,0)/lv.length:0;
   const weak=lv.filter(x=>x.l<4).sort((p,q)=>p.l-q.l)[0];
   const glTip={muscle:"Mange tes protéines du jour et vise une répétition de plus, ou 2,5 kg de plus, chaque semaine.",gras:"Garde tes charges et ajoute du cardio : le muscle protège ton métabolisme.",force:"Repose-toi 2 à 3 min sur les séries lourdes et dors 7 à 9 h.",endurance:"Alterne sortie longue et fractionné, et n’oublie pas le renforcement.",forme:"2 séances de force et 2 de cardio par semaine : la régularité avant tout."};
-  Object.assign(S.profile,{a,h,w,goal:gl,fq,exp,act:"auto",onboarded:1});
-  S.bilanLast={d:today(),v:V,bw:w,fq,gl,lvl:LV[Math.round(avg)],adv:weak?weak.q.tip:glTip[gl]};
-  save();unlock()};
+  Object.assign(S.profile,{a,h,w,goal:gl,fq,exp,act:"auto",onboarded:1,...P});
+  /* Bilan généré : points forts, à améliorer, plan d'action */
+  const forts=[],impr=[],plan=[];
+  plan.push(fq+" séance"+(fq>1?"s":"")+" par semaine, "+(P.time>=60?"environ 1 h":"environ "+P.time+" min")+" par séance");
+  if(P.gear.includes("salle"))plan.push("Programmes salle : corps entier si "+fq+" séance"+(fq>1?"s":"")+", split haut/bas si tu montes à 4");
+  else plan.push("Séances poids du corps ou street workout : faisables partout, à la maison comme au parc");
+  if(gl==="gras")plan.push("Nutrition : déficit léger, protéines à chaque repas, légumes à volonté");
+  else if(gl==="muscle"||gl==="force")plan.push("Nutrition : vise "+Math.round(w*1.8)+" g de protéines par jour et des féculents autour de l'entraînement");
+  else plan.push("Nutrition : repas équilibrés, la régularité avant la perfection");
+  if(P.sleep==="faible"||P.stress==="fort")plan.push("Récupération : protège ton sommeil, ajoute marche et mobilité les jours sans séance");
+  if(P.diet==="vegetarien"||P.diet==="vegan")plan.push("Protéines végétales variées : légumineuses, tofu, œufs (si tu en manges), oléagineux");
+  if(P.snack==="souvent")plan.push("Grignotage : remplace une collation sucrée par un fruit + une source de protéines");
+  const pains=P.pain.filter(x=>x&&x!=="aucune");
+  if(pains.length)plan.push("Douleurs signalées ("+pains.join(", ")+") : alternatives plus sûres proposées dans les séances");
+  if(avg>=2.5)forts.push("Niveau "+LV[Math.round(avg)].toLowerCase()+" sur tes tests");
+  if(P.sleep==="bon")forts.push("bon sommeil");
+  if(fq>=3)forts.push("fréquence d'entraînement ambitieuse");
+  if(P.likes.length)forts.push("tu aimes : "+P.likes.join(", "));
+  if(!forts.length)forts.push("tu démarres : chaque semaine compte");
+  if(weak)impr.push(weak.q.n.toLowerCase());
+  if(P.sleep==="faible")impr.push("sommeil");
+  if(P.stress==="fort")impr.push("gestion du stress");
+  if(P.energy==="faible")impr.push("énergie (sommeil, fer, apport calorique)");
+  if(!impr.length)impr.push("rien de bloquant : régularité et patience");
+  S.bilanLast={d:today(),v:V,bw:w,fq,gl,lvl:LV[Math.round(avg)],adv:weak?weak.q.tip:glTip[gl],forts,impr,plan};
+  if(sx==="f"&&$("on_cyc").checked&&!S.cyc)S.cyc={pl:5,cl:28};
+  save();unlock();
+  toast("✅ Bilan enregistré : "+LV[Math.round(avg)]+" · "+fq+" séance"+(fq>1?"s":"")+"/sem")};
 function rerunOnb(){document.body.classList.add("locked","onboarding");$("onb").hidden=false;prefillOnb();window.scrollTo(0,0)}
 $("onredo").onclick=rerunOnb;
+/* ===== Plan d'action (généré depuis le bilan) ===== */
+function renderPlan(){const B=S.bilanLast,o=$("planout");
+  if(!o)return;
+  if(!B||!B.plan){$("plancard").hidden=true;return}
+  $("plancard").hidden=false;
+  $("planout").innerHTML=`<p class="hint" style="margin:0 0 8px">Bilan du ${fd(B.d)} · niveau <b>${esc(B.lvl)}</b></p>`
+   +`<ul style="margin:0 0 8px"><li style="display:block;padding:5px 0"><b>Points forts</b><small>${B.forts.map(esc).join(" · ")}</small></li><li style="display:block;padding:5px 0"><b>À améliorer</b><small>${B.impr.map(esc).join(" · ")}</small></li></ul>`
+   +`<ul>${B.plan.map(x=>`<li style="display:block;padding:5px 0">✅ ${esc(x)}</li>`).join("")}</ul>`}
+$("planedit").onclick=rerunOnb;
 /* ===== Navigation ===== */
 const TT={seance:["Séance","Choisis ton programme et note tes séries."],perf:["Perf","Cardio, performance et calculateur."],progres:["Progrès","Tes courbes, rien d’autre."],nut:["Nutrition","Tes besoins, adaptés à ton profil."],corps:["Corps","Poids, mensurations et carnet."]};
 const TS={seance:["seance"],progres:["progres"],nut:["nut"]};
