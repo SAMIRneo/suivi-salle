@@ -601,7 +601,9 @@ function updExInfo(){const w=$("exinfoW");if(!w)return;const e=EXINFO[curM];
   if(!e){w.hidden=true;return}
   w.hidden=false;$("exinfo").innerHTML=`<p class="hint" style="margin:0 0 4px">${esc(e[0])}</p><p class="hint" style="margin:0">${esc(e[1])}<br>${esc(e[2])}</p>`}
 $("pgp").onchange=()=>{S.pgSel=$("pgp").value;save();renderPg()};
-$("pgl").onclick=e=>{const b=e.target.closest("[data-pm]");if(!b)return;curM=b.dataset.pm;S.lastM=curM;if($("pm"))$("pm").value=curM;$("lm").textContent=curM;openLog();upLast();window.scrollTo(0,0)};
+/* Défilement vers le formulaire de saisie : doux si le navigateur le gère, sinon instantané */
+function toLog(){const el=$("logw"),y0=window.scrollY;el.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>{if(Math.abs(window.scrollY-y0)<2)el.scrollIntoView({block:"start"})},120)}
+$("pgl").onclick=e=>{const b=e.target.closest("[data-pm]");if(!b)return;curM=b.dataset.pm;S.lastM=curM;if($("pm"))$("pm").value=curM;$("lm").textContent=curM;openLog();upLast();toLog()};
 function openLog(){const l=lastOf(curM);editId=null;
   if(l){$("w").value=l.w;$("r").value=l.r;$("s").value=l.s;$("rs").value=l.rs?l.rs.join("/"):""}
   else{$("w").value="";$("r").value="";$("s").value=3;$("rs").value=""}
@@ -648,7 +650,7 @@ $("newm").onclick=()=>{$("newmw").hidden=!$("newmw").hidden;if(!$("newmw").hidde
 $("newmok").onclick=()=>{const n=$("newmin").value.trim();if(!n)return;if(!S.machines.includes(n))S.machines.push(n);save();curM=n;$("lm").textContent=n;fill($("cmach"));if($("pm"))$("pm").value=n;openLog();upLast();$("newmw").hidden=true};
 $("dayL").onclick=e=>{const ed=e.target.dataset.edit;
   if(ed){const x=S.sessions.find(q=>q.id===ed);
-    if(x){curM=x.m;$("lm").textContent=x.m;$("w").value=x.w;$("r").value=x.r;$("s").value=x.s;$("rs").value=x.rs?x.rs.join("/"):"";$("rpe").value=x.rpe||"";$("d").value=x.d;editId=ed;$("logw").hidden=false;$("add").textContent="Mettre à jour la série";updExInfo();$("w").focus({preventScroll:true});window.scrollTo(0,0)}return}
+    if(x){curM=x.m;$("lm").textContent=x.m;$("w").value=x.w;$("r").value=x.r;$("s").value=x.s;$("rs").value=x.rs?x.rs.join("/"):"";$("rpe").value=x.rpe||"";$("d").value=x.d;editId=ed;$("logw").hidden=false;$("add").textContent="Mettre à jour la série";updExInfo();$("w").focus({preventScroll:true});toLog()}return}
   const id=e.target.dataset.del;if(!id)return;S.sessions=S.sessions.filter(x=>x.id!==id);save();renderSeance();renderProgres()};
 /* ===== Défi de la semaine ===== */
 const ADV={muscle:"Mange tes protéines du jour et vise une répétition de plus, ou 2,5 kg de plus, chaque semaine.",gras:"Garde tes charges et ajoute du cardio : le muscle protège ton métabolisme.",force:"Repose-toi 2 à 3 min sur les séries lourdes et dors 7 à 9 h.",endurance:"Alterne sortie longue et fractionné, et n’oublie pas le renforcement.",forme:"2 séances de force et 2 de cardio par semaine : la régularité avant tout."};
