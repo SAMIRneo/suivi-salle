@@ -210,7 +210,9 @@ summary::-webkit-details-marker{display:none}
   <div class="card" id="plancard" hidden><h2>📋 Mon plan d'action</h2><div id="planout"></div><button class="btn alt" id="planedit">Modifier mon bilan</button></div>
   <div class="card">
     <h2>Programme du jour</h2>
-    <label for="pgp" class="hint" style="margin-bottom:4px;display:block">Choisis selon ton temps aujourd'hui</label>
+    <button class="btn" id="pgrecbtn" style="margin-top:0">✨ Séance recommandée</button>
+    <div class="chips" id="pgcat" style="margin-top:10px"><button type="button" data-cat="all" class="on">Tout</button><button type="button" data-cat="muscu">🏋️ Muscu</button><button type="button" data-cat="maison">🏠 Maison</button><button type="button" data-cat="street">🌳 Street</button><button type="button" data-cat="mobilite">🧘 Mobilité & Cardio</button></div>
+    <label for="pgp" class="hint" style="margin:10px 0 4px;display:block">Ou choisis toi-même selon ton temps aujourd'hui</label>
     <select id="pgp"></select>
     <p class="hint" id="pgi"></p>
     <div class="chips" id="pgl" style="flex-wrap:wrap;margin-top:10px"></div>
@@ -218,6 +220,7 @@ summary::-webkit-details-marker{display:none}
     <div id="logw" hidden>
       <h2 id="lm">Exercice</h2>
       <p class="hint" id="last"></p>
+      <details id="exinfoW" hidden style="margin-top:8px"><summary>💡 Comment faire ? Alternatives</summary><div id="exinfo" style="margin-top:6px"></div></details>
       <div class="row" style="margin-top:10px">
         <div><label for="w">Charge (kg)</label><input id="w" type="number" inputmode="decimal" step="0.5" min="0"></div>
         <div><label for="r">Répétitions</label><input id="r" type="number" inputmode="numeric" min="1"></div>
@@ -427,6 +430,11 @@ const PGW=[
 {n:"Full body · Complet",d:"≈ 75 min",ex:[["Smith machine","4×8","2 min"],["Développé couché (machine)","4×8","2 min"],["Rowing assis","4×10","90 s"],["Leg extension","3×12","60 s"],["Leg curl couché","3×12","60 s"],["Pec deck","3×12","60 s"],["Développé épaules (machine)","3×10","60 s"],["Curl biceps","3×12","45 s"],["Triceps poulie","3×12","45 s"],["Mollets","4×15","45 s"]],t:"Séance complète : charges lourdes et repos longs sur les bases, isolations après."},
 {n:"Street workout · Débutant",d:"≈ 25 min",ex:[["Pompes (genoux si besoin)","3×max","60 s"],["Squats au poids du corps","3×15","60 s"],["Dips sur une chaise","3×max","60 s"],["Gainage","3×30 s","45 s"],["Fentes alternées","3×12/jambe","45 s"]],t:"Sans matériel, à la maison ou au parc."},
 {n:"Street workout · Intermédiaire",d:"≈ 40 min",ex:[["Tractions (ou australiennes)","4×max","2 min"],["Dips (barres parallèles)","4×max","90 s"],["Pompes déclinées","4×max","60 s"],["Squats pistol (assistés)","3×6/jambe","60 s"],["Gainage + L-sit","3×20 s","45 s"],["Burpees","3×10","60 s"]],t:"Barre de traction et barres parallèles."},
+{n:"Street workout · Avancé",d:"≈ 50 min",ex:[["Tractions lestées (ou archer)","4×5","2 min 30"],["Dips lestés (barres parallèles)","4×8","2 min"],["Pompes lestées","4×10","90 s"],["Pistol squats","4×5/jambe","90 s"],["L-sit (ou tuck hold)","4×15 s","60 s"],["Progression muscle-up","3×3","2 min"]],t:"Pour les confirmés : lest, variantes dures et travail de skill. Échauffe-toi long."},
+{n:"Sans équipement · Haut du corps",d:"≈ 25 min",ex:[["Pompes","3×max","60 s"],["Pompes mains surélevées","3×12","45 s"],["Dips sur une chaise","3×12","45 s"],["Superman (dos)","3×15","45 s"],["Gainage","3×30 s","45 s"]],t:"Pectoraux, épaules, triceps et dos, sans rien du tout."},
+{n:"Sans équipement · Abdos et gainage",d:"≈ 20 min",ex:[["Crunch","3×15","45 s"],["Planche","3×30 s","45 s"],["Gainage latéral","3×20 s/côté","45 s"],["Relevés de jambes","3×10","45 s"],["Hollow hold","3×15 s","45 s"]],t:"Abdos et sangle abdominale, en contrôle, sans forcer sur le dos."},
+{n:"Maison · Cardio et HIIT",d:"≈ 20 min",ex:[["Jumping jacks","4×30 s","30 s"],["Burpees","3×10","60 s"],["Mountain climbers","3×20","45 s"],["Squats sautés","3×10","60 s"],["Corde à sauter (option)","5 min","—"]],t:"Format HIIT : intensity par intervalles, échauffe-toi 3 à 5 minutes avant."},
+{n:"Mobilité · Full body",d:"≈ 15 min",ex:[["Étirement de l'enfant (dos)","3×30 s","—"],["Fentes basses (hanches)","2×30 s/côté","—"],["Chat-vache (dos)","10 reps lentes","—"],["Étirement ischio-jambiers","2×30 s/jambe","—"],["Épaules et nuque","5 min","—"]],t:"À faire n'importe quand : parfait les jours de récupération ou en fin de journée."},
 {n:"Sans équipement · Full body",d:"≈ 30 min",ex:[["Pompes","3×max","60 s"],["Squats","3×20","45 s"],["Fentes","3×12/jambe","45 s"],["Gainage","3×40 s","45 s"],["Superman (dos)","3×15","45 s"],["Jumping jacks","3×30","30 s"]],t:"Aucun matériel, partout, tout le temps."},
 {n:"Haut du corps",d:"≈ 45 min",ex:[["Développé couché (machine)","4×10","90 s"],["Tirage vertical","4×10","90 s"],["Développé épaules (machine)","3×10","60 s"],["Rowing assis","3×10","60 s"],["Curl biceps","3×12","45 s"],["Triceps poulie","3×12","45 s"]],t:"Pour les rythmes à 4 séances et plus (haut / bas)."},
 {n:"Bas du corps",d:"≈ 45 min",ex:[["Presse à cuisses","4×10","90 s"],["Leg extension","3×12","60 s"],["Leg curl couché","3×12","60 s"],["Abducteurs","3×15","45 s"],["Adducteurs","3×15","45 s"],["Mollets","4×15","45 s"]],t:"Pour les rythmes à 4 séances et plus (haut / bas)."},
@@ -434,6 +442,63 @@ const PGW=[
 {n:"Tirer (dos, biceps)",d:"≈ 40 min",ex:[["Tirage vertical","4×10","90 s"],["Rowing assis","4×10","60 s"],["Curl biceps","3×12","45 s"]],t:"Pour les rythmes à 5 séances et plus (push / pull / legs)."},
 {n:"Jambes et fessiers",d:"≈ 50 min",ex:[["Presse à cuisses","4×10","90 s"],["Leg extension","3×12","60 s"],["Leg curl couché","3×12","60 s"],["Abducteurs","3×15","45 s"],["Mollets","4×15","45 s"]],t:"Priorité fessiers et jambes."}];
 function pgEx(p){let ex=p.ex;if(gen()==="f"&&p.n==="Jambes et fessiers"){ex=ex.slice();ex.splice(1,0,["Hip thrust (machine)","4×10","90 s"]);ex.splice(ex.length-1,0,["Kickback fessiers (poulie)","3×12","60 s"])}return ex}
+/* Catégorie de chaque programme (pour les filtres et la recommandation) */
+const PMETA={"Full body · Rapide":{cat:"muscu",min:30},"Full body · Standard":{cat:"muscu",min:50},"Full body · Complet":{cat:"muscu",min:75},"Haut du corps":{cat:"muscu",min:45},"Bas du corps":{cat:"muscu",min:45},"Pousser (pecs, épaules, triceps)":{cat:"muscu",min:40},"Tirer (dos, biceps)":{cat:"muscu",min:40},"Jambes et fessiers":{cat:"muscu",min:50},"Street workout · Débutant":{cat:"street",min:25},"Street workout · Intermédiaire":{cat:"street",min:40},"Street workout · Avancé":{cat:"street",min:50},"Sans équipement · Full body":{cat:"maison",min:30},"Sans équipement · Haut du corps":{cat:"maison",min:25},"Sans équipement · Abdos et gainage":{cat:"maison",min:20},"Maison · Cardio et HIIT":{cat:"mobilite",min:20},"Mobilité · Full body":{cat:"mobilite",min:15}};
+/* Explications et alternatives par exercice */
+const EXINFO={
+"Presse à cuisses":["Pousse la plateforme avec les jambes, le dos bien collé au dossier, sans verrouiller les genoux.","🟢 Plus facile : réduis la charge de 20 %, pieds plus larges.","🔴 Plus dur : pause de 2 s en bas, ou séries de 1,5 répétition."],
+"Développé couché (machine)":["Pousse les poignées devant la poitrine, coudes à environ 45° du buste, contrôle la descente.","🟢 Plus facile : réduis la charge, arrête-toi 2 rép. avant l'échec.","🔴 Plus dur : descente lente sur 3 secondes."],
+"Tirage vertical":["Tire la barre vers le haut de la poitrine, épaules basses, sans te balancer.","🟢 Plus facile : charge plus légère et tempo régulier.","🔴 Plus dur : pause 2 s en bas, ou une main à la fois."],
+"Rowing assis":["Tire les poignées vers le ventre, buste droit, épaules en arrière.","🟢 Plus facile : réduis la charge et garde le dos droit.","🔴 Plus dur : pause serrée 1 s au corps."],
+"Leg extension":["Tend les jambes sans à-coup, pointes vers toi.","🟢 Plus facile : charge plus légère, 12 reps lentes.","🔴 Plus dur : pause de 2 s en haut."],
+"Leg curl couché":["Ramène les talons vers les fessiers, hanches collées au banc.","🟢 Plus facile : charge plus légère, mouvement lent.","🔴 Plus dur : 3 s de descente."],
+"Pec deck":["Serre les poignées devant toi, coudes légèrement fléchis.","🟢 Plus facile : charge réduite, amplitude confortable.","🔴 Plus dur : pause 2 s serrée."],
+"Développé épaules (machine)":["Pousse au-dessus de la tête sans cambrer le bas du dos.","🟢 Plus facile : assis bien calé, charge légère.","🔴 Plus dur : tempo lent à la descente."],
+"Curl biceps":["Fléchis les coudes sans les avancer, contrôle le retour.","🟢 Plus facile : charge plus légère, coudes stables.","🔴 Plus dur : 3 s de descente."],
+"Triceps poulie":["Pousse la poignée vers le bas, coudes collés au buste.","🟢 Plus facile : corde et charge légère.","🔴 Plus dur : pause 1 s bras tendus."],
+"Hip thrust (machine)":["Pousse le bassin vers le plafond en serrant les fessiers, menton rentré.","🟢 Plus facile : sans machine, pont de fessiers au sol.","🔴 Plus dur : pause 2 s en haut, une jambe."],
+"Kickback fessiers (poulie)":["Pousse la jambe vers l'arrière en gardant le buste fixe.","🟢 Plus facile : sans charge, au sol.","🔴 Plus dur : pause 2 s en haut."],
+"Abducteurs":["Écarte les jambes contre la résistance, buste stable.","🟢 Plus facile : charge légère, 15 reps.","🔴 Plus dur : 3 s de retour."],
+"Adducteurs":["Rapproche les jambes contre la résistance.","🟢 Plus facile : charge légère, amplitude réduite.","🔴 Plus dur : pause serrée 2 s."],
+"Mollets":["Monte sur la pointe des pieds, pause en haut.","🟢 Plus facile : une jambe à la fois sans charge.","🔴 Plus dur : 15 reps lent + pause 2 s."],
+"Smith machine":["Barre guidée : garde la même trajectoire, épaules engagées.","🟢 Plus facile : pieds plus avancés, charge légère.","🔴 Plus dur : tempo 3 s de descente."],
+"Développé incliné (machine)":["Pousse les poignées, banc incliné, sans décoller le dos.","🟢 Plus facile : charge réduite.","🔴 Plus dur : descente lente."],
+"Dips assisté":["Descends jusqu'aux coudes à 90°, buste légèrement penché.","🟢 Plus facile : plus d'assistance (contre-poids).","🔴 Plus dur : moins d'assistance, tempo lent."],
+"Pompes":["Mains sous les épaules, corps gainé, la poitrine descend près du sol.","🟢 Plus facile : sur les genoux ou mains surélevées (table).","🔴 Plus dur : déclinées (pieds surélevés) ou lestées (sac à dos)."],
+"Pompes (genoux si besoin)":["Comme des pompes, mais sur les genoux : garde le corps droit.","🟢 Encore plus facile : mains sur une table.","🔴 Plus dur : passe aux pompes complètes."],
+"Squats au poids du corps":["Pieds largeur d'épaules, descends les hanches en arrière, genoux dans l'axe.","🟢 Plus facile : assis-debout sur une chaise.","🔴 Plus dur : squats sautés ou pistol (une jambe)."],
+"Squats":["Pieds largeur d'épaules, descends jusqu'à la cuisse parallèle au sol.","🟢 Plus facile : demi-squats ou avec une chaise.","🔴 Plus dur : squats sautés, pistol, ou sac à dos chargé."],
+"Dips sur une chaise":["Mains sur le bord d'une chaise, coudes vers l'arrière, descends et remonte.","🟢 Plus facile : genoux pliés, faible amplitude.","🔴 Plus dur : jambes tendues, ou pieds surélevés."],
+"Gainage":["Planche sur les avant-bras, corps aligné, fesses serrées.","🟢 Plus facile : sur les genoux ou 20 s.","🔴 Plus dur : une jambe levée, ou 60 s."],
+"Fentes alternées":["Grand pas en avant, genou arrière vers le sol, pousse pour remonter.","🟢 Plus facile : tenez un mur, amplitude réduite.","🔴 Plus dur : fentes sautées ou avec sac à dos."],
+"Fentes":["Grand pas, genou arrière vers le sol, buste droit.","🟢 Plus facile : amplitude réduite en tenant un support.","🔴 Plus dur : fentes sautées ou lestées."],
+"Superman (dos)":["Allongé sur le ventre, décolle bras et jambes, 2 s de pause.","🟢 Plus facile : bras ou jambes seulement.","🔴 Plus dur : 15 reps + 30 s de tenue."],
+"Jumping jacks":["Saute jambes écartées, bras au-dessus de la tête, en rythme.","🟢 Plus facile : step-out sans saut (low impact).","🔴 Plus dur : tempo rapide, 60 s."],
+"Burpees":["Squat, mains au sol, jambes en arrière, pompes, retour et saut.","🟢 Plus facile : sans pompes ni saut (marche).","🔴 Plus dur : avec pompes et saut groupé."],
+"Mountain climbers":["Position planche, ramène les genoux à la poitrine en alternance.","🟢 Plus facile : tempo lent, mains surélevées.","🔴 Plus dur : tempo rapide, 30 s."],
+"Squats sautés":["Squat explos avec saut vertical, réception souple.","🟢 Plus facile : squat sans saut.","🔴 Plus dur : 12 reps, réception en pistol léger."],
+"Tractions (ou australiennes)":["Mentone au-dessus de la barre, ou rowing australien sous une barre basse.","🟢 Plus facile : tractions négatives (descente lente) ou élastique.","🔴 Plus dur : tractions lestées, prise large."],
+"Dips (barres parallèles)":["Descends coudes à 90°, buste légèrement penché en avant.","🟢 Plus facile : dips sur chaise, ou assistance élastique.","🔴 Plus dur : dips lestés, tempo lent."],
+"Pompes déclinées":["Pompes avec les pieds surélevés : plus l'avant du haut du corps.","🟢 Plus facile : pompes au sol.","🔴 Plus dur : lestées ou mains sur ballon."],
+"Squats pistol (assistés)":["Squat sur une jambe, l'autre tendue. Aide-toi d'un support si besoin.","🟢 Plus facile : pistol sur une chaise ou avec support.","🔴 Plus dur : sans support, sur plan instable."],
+"Gainage + L-sit":["Planche puis L-sit : jambes tendues à l'horizontale, soutenues par les bras.","🟢 Plus facile : tuck hold (genoux pliés).","🔴 Plus dur : 20 s, ou jambes écartées en V."],
+"Tractions lestées (ou archer)":["Tractions avec lest (sac à dos) ou archer : une main loin sur la barre.","🟢 Plus facile : tractions strictes.","🔴 Plus dur : prise pronation stricte, tempo lent."],
+"Dips lestés (barres parallèles)":["Dips avec lest, amplitude complète et contrôle.","🟢 Plus facile : dips lestes légers.","🔴 Plus dur : tempo 3 s de descente."],
+"Pompes lestées":["Pompes avec un sac à dos chargé, corps parfaitement gainé.","🟢 Plus facile : lest léger (2-5 kg).","🔴 Plus dur : lest lourd ou pompes déclinées."],
+"Pistol squats":["Squat complet sur une jambe, l'autre tendue devant toi.","🟢 Plus facile : sur une chaise, ou avec support.","🔴 Plus dur : sur bosu ou avec lest."],
+"L-sit (ou tuck hold)":["Suspendu ou au sol, maintiens les jambes tendues à l'horizontale.","🟢 Plus facile : tuck hold (genoux pliés) 10 s.","🔴 Plus dur : 20-30 s, ou jambes en V."],
+"Progression muscle-up":["Depuis la traction, tire jusqu'à la poitrine puis transition dips.","🟢 Plus facile : tractions hautes explosives + dips négatifs.","🔴 Plus dur : enchaînements complets."],
+"Crunch":["Décolle les épaules du sol en enroulant le buste, sans tirer la nuque.","🟢 Plus facile : bras tendus vers les cuisses.","🔴 Plus dur : jambes en équerre, 20 reps."],
+"Planche":["Avant-bras au sol, corps aligné des épaules aux chevilles.","🟢 Plus facile : 20 s, sur les genoux.","🔴 Plus dur : 60 s, une jambe levée."],
+"Gainage latéral":["Sur le côté, appui sur l'avant-bras, hanche décollée du sol.","🟢 Plus facile : genoux au sol.","🔴 Plus dur : jambes écartées ou rotations."],
+"Relevés de jambes":["Allongé, monte les jambes tendues puis redescends sans à-coup.","🟢 Plus facile : genoux pliés, une jambe à la fois.","🔴 Plus dur : 15 reps, mains au-dessus de la tête."],
+"Hollow hold":["Dos au sol, épaules et jambes décollées, bas du dos collé au sol.","🟢 Plus facile : genoux pliés, bras le long du corps.","🔴 Plus dur : 30 s, bras au-dessus de la tête."],
+"Corde à sauter (option)":["Petits sauts réguliers, poignets qui tournent, départs souples.","🟢 Plus facile : sauts avec les deux pieds, pauses fréquentes.","🔴 Plus dur : un pied à la fois, double sauts."],
+"Étirement de l'enfant (dos)":["À genoux, fesses sur les talons, bras tendus devant, respire lentement.","🟢 Plus facile : coussin entre les cuisses et les mollets.","🔴 Plus dur : bras plus loin, allonger la tenue à 60 s."],
+"Fentes basses (hanches)":["Genou au sol, avance le bassin : étirement du psoas et de la hanche.","🟢 Plus facile : amplitude réduite, main sur un mur.","🔴 Plus dur : tenue 60 s, léger basculement du bassin."],
+"Chat-vache (dos)":["À quatre pattes, alterne dos rond et dos creux lentement, en respirant.","🟢 Plus facile : amplitude douce, 6 reps.","🔴 Plus dur : 15 reps lentes en synchronisant la respiration."],
+"Étirement ischio-jambiers":["Assis ou debout, jambe tendue, penche le buste sans arrondir le dos.","🟢 Plus facile : genoux légèrement fléchis.","🔴 Plus dur : tenue 45-60 s."],
+"Épaules et nuque":["Cercles d'épaules, inclinaisons de tête douces, auto-grandissement.","🟢 Plus facile : amplitude réduite, sans forcer.","🔴 Plus dur : 2 min complètes, avec pauses de 10 s en fin d'amplitude."]};
 let curM=null,restSec=90,tm=null,tl=0;
 function toast(t,rec){toast.u=0;const e=$("toast");e.textContent=t;e.classList.toggle("rec",!!rec);e.hidden=false;e.classList.remove("in","out");void e.offsetWidth;e.classList.add("in");e.tabIndex=0;clearTimeout(toast.t);toast.t=setTimeout(()=>{e.classList.add("out");toast.t=setTimeout(()=>e.hidden=true,240)},rec?5000:3500)}
 function showT(){const e=$("tmv");if(!e)return;e.hidden=false;e.classList.toggle("warn",tl>0&&tl<=10);e.textContent=tl>0?Math.floor(tl/60)+":"+String(tl%60).padStart(2,"0"):"C’est reparti 💪";$("tstop").hidden=tl<=0&&restSec<=0}
@@ -447,19 +512,44 @@ function weekKey(){const n=new Date(),s=new Date(n);s.setDate(n.getDate()-(n.get
 const fqOf=()=>Math.min(5,Math.max(1,parseInt((S.bilanLast&&S.bilanLast.fq))||3));
 const PGR={1:"Avec 1 à 2 séances par semaine : corps entier à chaque fois. Alterne Rapide et Standard selon ton temps.",2:"Avec 1 à 2 séances par semaine : corps entier à chaque fois. Alterne Rapide et Standard selon ton temps.",3:"Avec 3 séances : corps entier. Varie Rapide / Standard / Complet selon ton temps du jour.",4:"Avec 4 séances : alterne Haut du corps et Bas du corps, deux fois chacun.",5:"Avec 5 séances et plus : Pousser / Tirer / Jambes, plus un full body ou une séance de cardio."};
 function renderPg(){
-  S.pgSel=S.pgSel||"Full body · Standard";
-  $("pgp").innerHTML=PGW.map(p=>`<option value="${esc(p.n)}">${esc(p.n)} — ${p.d}</option>`).join("");
-  $("pgp").value=PGW.some(p=>p.n===S.pgSel)?S.pgSel:"Full body · Standard";S.pgSel=$("pgp").value;
+  const cat=S.pgCat||"all";
+  const list=PGW.filter(p=>cat==="all"||(PMETA[p.n]||{}).cat===cat);
+  document.querySelectorAll("#pgcat button").forEach(b=>b.classList.toggle("on",b.dataset.cat===cat));
+  if(!list.some(p=>p.n===S.pgSel))S.pgSel=list.length?list[0].n:"Full body · Standard";
+  $("pgp").innerHTML=list.map(p=>`<option value="${esc(p.n)}">${esc(p.n)} — ${p.d}</option>`).join("");
+  $("pgp").value=list.some(p=>p.n===S.pgSel)?S.pgSel:"Full body · Standard";S.pgSel=$("pgp").value;
   const p=PGW.find(q=>q.n===S.pgSel),done=new Set(S.sessions.filter(x=>x.d===($("d").value||today())).map(x=>x.m));
   $("pgi").innerHTML=`<b>${p.d}</b> · ${pgEx(p).length} exercices · ${p.t}`;
   $("pgrec").textContent=PGR[fqOf()];
   $("pgl").innerHTML=pgEx(p).map(e=>`<button type="button" data-pm="${esc(e[0])}" aria-label="${esc(e[0])}${done.has(e[0])?", fait aujourd’hui":""}"${done.has(e[0])?" class=\"pgdone\"":""}>${done.has(e[0])?"✓ ":""}${esc(e[0])}<small>${esc(e[1])} · repos ${esc(e[2])}</small></button>`).join("")}
+/* Séance recommandée selon profil, fatigue, matériel, fréquence et cycle */
+function recProg(){
+  const P=S.profile||{},fq=fqOf(),time=P.time||45;
+  const ci=S.cyc?cycInfo():null;
+  const fat=P.energy==="faible"||P.sleep==="faible"||(ci&&ci.i===3);
+  if(fat)return "Mobilité · Full body";
+  const salle=(P.gear||[]).includes("salle");
+  const street=((P.gear||[]).includes("traction")||(P.likes||[]).includes("street"));
+  const k=S.sessions.filter(x=>x.d>=weekKey()).length;
+  if(!salle){
+    if(street)return P.exp==="a"?"Street workout · Avancé":P.exp==="i"?"Street workout · Intermédiaire":"Street workout · Débutant";
+    return "Sans équipement · Full body"}
+  if(time<=30)return "Full body · Rapide";
+  if(fq>=5)return ["Pousser (pecs, épaules, triceps)","Tirer (dos, biceps)","Jambes et fessiers"][k%3];
+  if(fq===4)return ["Haut du corps","Bas du corps"][k%2];
+  return time>=60?"Full body · Complet":"Full body · Standard"}
+$("pgrecbtn").onclick=()=>{const n=recProg();S.pgSel=n;S.pgCat=(PMETA[n]||{}).cat||"all";save();renderPg();toast("✨ Séance recommandée : "+n)};
+document.querySelectorAll("#pgcat button").forEach(b=>b.onclick=()=>{S.pgCat=b.dataset.cat;save();renderPg()});
+/* Explications et alternatives de l'exercice en cours */
+function updExInfo(){const w=$("exinfoW");if(!w)return;const e=EXINFO[curM];
+  if(!e){w.hidden=true;return}
+  w.hidden=false;$("exinfo").innerHTML=`<p class="hint" style="margin:0 0 4px">${esc(e[0])}</p><p class="hint" style="margin:0">${esc(e[1])}<br>${esc(e[2])}</p>`}
 $("pgp").onchange=()=>{S.pgSel=$("pgp").value;save();renderPg()};
 $("pgl").onclick=e=>{const b=e.target.closest("[data-pm]");if(!b)return;curM=b.dataset.pm;S.lastM=curM;if($("pm"))$("pm").value=curM;$("lm").textContent=curM;openLog();upLast();window.scrollTo(0,0)};
 function openLog(){const l=lastOf(curM);editId=null;
   if(l){$("w").value=l.w;$("r").value=l.r;$("s").value=l.s;$("rs").value=l.rs?l.rs.join("/"):""}
   else{$("w").value="";$("r").value="";$("s").value=3;$("rs").value=""}
-  $("rpe").value="";$("logw").hidden=false;$("add").textContent="Enregistrer la série";$("w").focus({preventScroll:true})}
+  $("rpe").value="";$("logw").hidden=false;$("add").textContent="Enregistrer la série";updExInfo();$("w").focus({preventScroll:true})}
 let editId=null;
 function upLast(){const l=lastOf(curM);
   $("last").textContent=l?`Dernière fois : ${fn(l.w)} kg × ${rp(l)} (${fd(l.d)}). ${sug(l)}`:"Première fois sur cet exercice."}
@@ -486,7 +576,7 @@ $("newm").onclick=()=>{$("newmw").hidden=!$("newmw").hidden;if(!$("newmw").hidde
 $("newmok").onclick=()=>{const n=$("newmin").value.trim();if(!n)return;if(!S.machines.includes(n))S.machines.push(n);save();curM=n;$("lm").textContent=n;fill($("cmach"));if($("pm"))$("pm").value=n;openLog();upLast();$("newmw").hidden=true};
 $("dayL").onclick=e=>{const ed=e.target.dataset.edit;
   if(ed){const x=S.sessions.find(q=>q.id===ed);
-    if(x){curM=x.m;$("lm").textContent=x.m;$("w").value=x.w;$("r").value=x.r;$("s").value=x.s;$("rs").value=x.rs?x.rs.join("/"):"";$("rpe").value=x.rpe||"";$("d").value=x.d;editId=ed;$("logw").hidden=false;$("add").textContent="Mettre à jour la série";$("w").focus({preventScroll:true});window.scrollTo(0,0)}return}
+    if(x){curM=x.m;$("lm").textContent=x.m;$("w").value=x.w;$("r").value=x.r;$("s").value=x.s;$("rs").value=x.rs?x.rs.join("/"):"";$("rpe").value=x.rpe||"";$("d").value=x.d;editId=ed;$("logw").hidden=false;$("add").textContent="Mettre à jour la série";updExInfo();$("w").focus({preventScroll:true});window.scrollTo(0,0)}return}
   const id=e.target.dataset.del;if(!id)return;S.sessions=S.sessions.filter(x=>x.id!==id);save();renderSeance();renderProgres()};
 /* ===== Défi de la semaine ===== */
 const ADV={muscle:"Mange tes protéines du jour et vise une répétition de plus, ou 2,5 kg de plus, chaque semaine.",gras:"Garde tes charges et ajoute du cardio : le muscle protège ton métabolisme.",force:"Repose-toi 2 à 3 min sur les séries lourdes et dors 7 à 9 h.",endurance:"Alterne sortie longue et fractionné, et n’oublie pas le renforcement.",forme:"2 séances de force et 2 de cardio par semaine : la régularité avant tout."};
