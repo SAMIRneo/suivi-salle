@@ -199,9 +199,12 @@ summary::-webkit-details-marker{display:none}
 <main>
 <section id="seance">
   <div class="card">
-    <h2>☀️ Défi du jour (sans matériel)</h2>
-    <p class="hint" id="dailystreak" style="margin:0 0 8px"></p>
-    <ul id="dailylist"></ul>
+    <h2>☀️ Défi du jour</h2>
+    <p class="hint" id="ddcat" style="margin:0 0 6px"></p>
+    <p id="ddtxt" style="margin:0;font-size:15px;line-height:1.5"></p>
+    <div class="chips" style="margin-top:12px"><button type="button" id="ddok">✅ Fait</button><button type="button" id="ddchg">🔄 Changer de défi</button></div>
+    <p class="hint" id="ddstreak" style="margin:8px 0 0"></p>
+    <details style="margin-top:6px"><summary>Historique</summary><ul id="ddhist"></ul></details>
   </div>
   <div class="card"><h2>🎯 Défi de la semaine</h2><p class="hint" id="chh" style="margin:0 0 8px"></p><ul id="chl"></ul></div>
   <div class="card" id="plancard" hidden><h2>📋 Mon plan d'action</h2><div id="planout"></div><button class="btn alt" id="planedit">Modifier mon bilan</button></div>
@@ -499,19 +502,71 @@ function renderCh(){
   $("chh").innerHTML=lvl?`Niveau estimé : <b>${esc(lvl)}</b> · ${days} séance${days>1?"s":""} cette semaine`:"";
   const adv=(S.bilanLast&&S.bilanLast.adv)||ADV.forme;
   $("chl").innerHTML=ch.map(c=>`<li style="display:block;margin-bottom:8px"><div style="display:flex;justify-content:space-between;gap:8px"><span>${c.done?"✅":"⬜"} ${c.t}</span><small>${c.d}</small></div><div class="bar${c.done?" done":""}" role="progressbar" aria-valuenow="${Math.round(c.p)}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(c.t)}"><i style="width:${Math.max(4,c.p)}%"></i></div></li>`).join("")+`<p class="hint" style="margin-top:4px">💡 ${esc(adv)}</p>`}
-/* ===== Défi du jour (sans matériel) ===== */
-const DAILY_POOL=[{id:"pompes",t:"20 pompes (ou ton max)",i:"💪"},{id:"squats",t:"30 squats",i:"🦵"},{id:"gainage",t:"45 s de gainage",i:"🧱"},{id:"fentes",t:"20 fentes",i:"🚶"},{id:"marche",t:"10 min de marche",i:"🚶‍♀️"},{id:"etire",t:"5 min d'étirements",i:"🧘"},{id:"jumping",t:"30 jumping jacks",i:"🤸"},{id:"triceps",t:"15 dips sur une chaise",i:"🪑"},{id:"superman",t:"15 superman (dos)",i:"🦸"},{id:"planche",t:"1 min de planche",i:"⏱️"}];
-function dailyTasks(){const seed=dn(today());const arr=DAILY_POOL.slice();let s=seed;const rng=()=>{s=(s*9301+49297)%233280;return s/233280};for(let i=arr.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr.slice(0,4)}
-function renderDaily(){const D=S.daily=S.daily||{},todayStr=today();if(D.date!==todayStr){D.date=todayStr;D.done=[];save()}
-  const tasks=dailyTasks(),done=new Set(D.done||[]);
-  $("dailystreak").textContent="Série : "+(D.streak||0)+" jour"+((D.streak||0)>1?"s":"")+" de suite · coche les 4 pour valider le jour.";
-  $("dailylist").innerHTML=tasks.map(t=>`<li style="display:flex;align-items:center;gap:10px;padding:8px 0"><input type="checkbox" id="dd_${t.id}" ${done.has(t.id)?"checked":""} style="width:22px;height:22px;accent-color:var(--acc)"><label for="dd_${t.id}" style="margin:0;flex:1;font-size:14px;color:var(--ink)">${t.i} ${t.t}</label></li>`).join("");
-  $("dailylist").querySelectorAll("input[type=checkbox]").forEach(cb=>cb.onchange=()=>{
-    const id=cb.id.slice(3);const D=S.daily=S.daily||{};D.done=D.done||[];
-    if(cb.checked){if(!D.done.includes(id))D.done.push(id)}else D.done=D.done.filter(x=>x!==id);
-    const allDone=dailyTasks().every(t=>D.done.includes(t.id));
-    if(allDone&&!D.validated){D.validated=todayStr;D.streak=(D.streak||0)+1;save();toast("🏆 Défi du jour réussi ! Série : "+D.streak+" jour"+(D.streak>1?"s":""))}
-    if(!allDone)D.validated=null;save();renderDaily()})}
+/* ===== Défi du jour (adaptatif : profil, fatigue, séances récentes, cycle) ===== */
+const DCAT={train:"💪 Entraînement",nutri:"🥗 Nutrition",reco:"🌙 Récupération",mob:"🧘 Mobilité",sommeil:"😴 Sommeil",cardio:"🏃 Cardio"};
+const DEFIS=[
+ {id:"marche",c:"reco",t:"Aujourd'hui, fais 20 minutes de marche rapide après ton repas principal : ça améliore ta récupération et ton niveau d'activité sans te fatiguer."},
+ {id:"prot-dej",c:"nutri",t:"Ajoute une source de protéines à ton petit-déjeuner : œufs, skyr ou fromage blanc, par exemple."},
+ {id:"etire-dos",c:"mob",t:"Fais 10 minutes d'étirements du dos, des hanches et des jambes, idéalement après ta séance."},
+ {id:"seance-courte",c:"train",t:"Choisis une séance courte de 25 minutes : 3 exercices de jambes, 3 exercices de haut du corps et 5 minutes de cardio."},
+ {id:"collation",c:"nutri",t:"Aujourd'hui, remplace une collation sucrée par un fruit et une source de protéines (yaourt nature, amandes…)."},
+ {id:"gainage-soir",c:"train",t:"Fais 3 séries de gainage de 30 secondes avant de te coucher : ton dos et ta posture te diront merci."},
+ {id:"sommeil",c:"sommeil",t:"Couche-toi 30 minutes plus tôt ce soir : le sommeil fait progresser autant que l'entraînement."},
+ {id:"legumes",c:"nutri",t:"Au dîner, remplis la moitié de ton assiette de légumes : fibres et satiété, sans calories inutiles."},
+ {id:"hydrat",c:"reco",t:"Bois un grand verre d'eau à chaque repas aujourd'hui : une bonne hydratation améliore la récupération."},
+ {id:"mobilite-hanches",c:"mob",t:"Prends 5 minutes pour ouvrir tes hanches (fentes basses, rotations de hanche) au cours de la journée."},
+ {id:"cardio-leger",c:"cardio",t:"Ajoute 15 minutes de cardio léger à la fin de ta séance : vélo, tapis ou corde à sauter."},
+ {id:"proteines-diner",c:"nutri",t:"Assure-toi d'avoir une vraie source de protéines au dîner : viande, poisson, œufs, légumineuses ou tofu."},
+ {id:"respiration",c:"reco",t:"Fais 3 minutes de respiration lente (inspire 4 secondes, expire 6 secondes) pour faire baisser la tension de la journée."},
+ {id:"squats-rep",c:"train",t:"Répartis 3 séries de 15 squats au poids du corps dans ta journée."},
+ {id:"pompes-max",c:"train",t:"Teste ton maximum de pompes en une seule série et note le résultat dans Perf → Performance."},
+ {id:"record",c:"train",t:"Sur un exercice du programme du jour, vise une répétition de plus que ta dernière séance."},
+ {id:"fentes",c:"train",t:"Fais 20 fentes par jambe, réparties dans la journée : avant la douche, avant le repas, quand tu veux."},
+ {id:"dorsaux",c:"train",t:"Fais 3 séries de 15 superman (dos) : renforce ton dos en douceur, sans matériel."},
+ {id:"pas",c:"cardio",t:"Vise 8 000 pas aujourd'hui : marche, escaliers, déplacements à pied quand c'est possible."},
+ {id:"sucre",c:"nutri",t:"Aujourd'hui, pas de boissons sucrées : eau, café ou thé à la place."},
+ {id:"street",c:"train",t:"Va sur une aire de street workout ou devant chez toi : pompes, dips sur une chaise et gainage, 20 minutes suffisent."},
+ {id:"etire-soir",c:"mob",t:"Avant de dormir, fais 5 minutes d'étirements doux : ça aide le sommeil et la récupération."},
+ {id:"repos-actif",c:"reco",t:"Journée sans séance ? Marche 15 minutes et étire-toi : la récupération fait partie de l'entraînement."},
+ {id:"fibre",c:"nutri",t:"Ajoute une source de fibres à ton repas du soir : légumineuses, légumes ou pain complet."}];
+function dailyCandidates(){
+  const P=S.profile||{},D=S.daily=S.daily||{};
+  const t=today(),last=(S.sessions.slice().sort((a,b)=>b.d.localeCompare(a.d))[0]||{}).d;
+  const days=last?dn(t)-dn(last):99;
+  const intense=!!last&&days<=1&&S.sessions.some(x=>x.d===last&&(x.rpe||0)>=8);
+  const ci=S.cyc?cycInfo():null,lut=!!ci&&ci.i===3;
+  const fatigue=P.energy==="faible"||P.sleep==="faible"||intense||lut;
+  const shown=D.shown||[],pains=P.pain||[];
+  return DEFIS.map(d=>{
+    let s=1;
+    if(fatigue&&(d.c==="reco"||d.c==="mob"))s+=3;
+    if(fatigue&&d.c==="train"&&d.id!=="record"&&d.id!=="pompes-max")s-=.6;
+    if(!fatigue&&d.c==="train")s+=.8;
+    if(days>=4&&d.c==="train")s+=2;
+    if(P.snack==="souvent"&&d.c==="nutri")s+=1.2;
+    if(P.stress==="fort"&&d.c==="reco")s+=1.6;
+    if(P.goal==="gras"&&(d.c==="cardio"||d.c==="nutri"))s+=1;
+    if(P.goal==="muscle"&&d.c==="train")s+=.6;
+    if(pains.includes("dos")&&d.id==="etire-dos")s+=3;
+    if(((P.gear||[]).includes("street")||(P.likes||[]).includes("street"))&&d.id==="street")s+=1;
+    if(shown.includes(d.id))s-=4.5;
+    return{d,s:s+Math.random()*.7}}).sort((a,b)=>b.s-a.s)[0].d}
+function renderDaily(){
+  const D=S.daily=S.daily||{};D.hist=D.hist||[];
+  if(D.date!==today()){D.date=today();D.id=null;D.done=null;save()}
+  let d=DEFIS.find(x=>x.id===D.id);
+  if(!d){d=dailyCandidates();D.id=d.id;D.done=null;D.shown=(D.shown||[]).concat(d.id).slice(-6);save()}
+  $("ddcat").textContent=DCAT[d.c]||"";
+  $("ddtxt").textContent=d.t;
+  $("ddok").classList.toggle("on",!!D.done);$("ddok").textContent=D.done?"✅ Défi réussi !":"✅ Fait";
+  const st=D.streak||0;
+  $("ddstreak").textContent=st?"🔥 Série : "+st+" jour"+(st>1?"s":"")+" de suite":"Coche « Fait » quand c'est réussi : ta série se compte toute seule.";
+  $("ddhist").innerHTML=D.hist.length?D.hist.slice(-7).reverse().map(h=>`<li style="padding:6px 0"><span>${h.ok?"✅":"➖"} <small>${esc(h.t)}</small></span><small style="display:inline">${fd(h.d)}</small></li>`).join(""):'<p class="empty">Tes défis réalisés apparaîtront ici.</p>'}
+$("ddok").onclick=()=>{const D=S.daily=S.daily||{},d=DEFIS.find(x=>x.id===D.id);if(!d)return;
+  D.hist=D.hist||[];
+  if(!D.done){D.done=1;D.streak=(D.streak||0)+1;D.hist.push({d:today(),id:d.id,t:d.t,ok:1});if(D.hist.length>30)D.hist=D.hist.slice(-30);save();renderDaily();toast("🏆 Défi réussi ! Série : "+D.streak+" jour"+(D.streak>1?"s":""))}
+  else{D.done=null;D.streak=Math.max(0,(D.streak||0)-1);D.hist=D.hist.filter(h=>!(h.d===today()&&h.id===D.id));save();renderDaily()}};
+$("ddchg").onclick=()=>{const D=S.daily=S.daily||{};const d=dailyCandidates();D.id=d.id;D.done=null;D.shown=(D.shown||[]).concat(d.id).slice(-6);save();renderDaily()};
 /* ===== Cardio ===== */
 const JUMP="Corde à sauter",CA=["Tapis de course","Vélo","Elliptique","Rameur","Marche","Escalier",JUMP,"Autre"];
 function C(){return S.cardio=S.cardio||[]}
