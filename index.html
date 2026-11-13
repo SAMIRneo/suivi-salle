@@ -208,6 +208,7 @@ summary::-webkit-details-marker{display:none}
   </div>
   <div class="card"><h2>🎯 Défi de la semaine</h2><p class="hint" id="chh" style="margin:0 0 8px"></p><ul id="chl"></ul></div>
   <div class="card" id="plancard" hidden><h2>📋 Mon plan d'action</h2><div id="planout"></div><button class="btn alt" id="planedit">Modifier mon bilan</button></div>
+  <div class="card" id="tipcard" hidden><h2>💡 Conseil du jour</h2><p id="tiptxt" style="margin:0"></p></div>
   <div class="card">
     <h2>Programme du jour</h2>
     <button class="btn" id="pgrecbtn" style="margin-top:0">✨ Séance recommandée</button>
@@ -556,6 +557,7 @@ function upLast(){const l=lastOf(curM);
 const rp=x=>x.rs?x.rs.join("/")+" rép.":x.r+" rép. × "+x.s+" séries";
 const sug=l=>{const lo=l.rs?Math.min(...l.rs):l.r;return lo>=12?"Suggestion : "+fn(l.w+2.5)+" kg, vise 8 rép.":"Suggestion : "+fn(l.w)+" kg, vise "+(lo+1)+" rép. par série."};
 function renderSeance(){renderCh();renderPg();renderDaily();renderPlan();
+  if(S.bilanLast){$("tipcard").hidden=false;$("tiptxt").textContent=smartTip()}
   const d=$("d").value||today(),L=S.sessions.filter(x=>x.d===d).sort((a,b)=>a.t-b.t);
   $("dayT").textContent=d===today()?"Aujourd’hui":"Séance du "+fd(d);
   $("dayL").innerHTML=L.length?L.map(x=>`<li><span><b>${esc(x.m)}</b><small>${fn(x.w)} kg × ${rp(x)}${x.rpe?" · RPE "+x.rpe:""}</small></span><span><button class="x" data-edit="${x.id}" aria-label="Modifier">✎</button><button class="x" data-del="${x.id}" aria-label="Supprimer">×</button></span></li>`).join(""):'<p class="empty">Rien d’enregistré ce jour-là.</p>';
@@ -862,7 +864,7 @@ function renderNut(){
    base=Math.max(F?1.6:2,.03*w),dm=ld.dm||60,add=Math.min(1.5,Math.max(.3,.5*dm/60));
   nutP=Math.round(P);S.profile.hyd=base+add;S.profile.kcal=Math.round(tgt);save();
   const cat=b<18.5?"insuffisance pondérale":b<25?"corpulence normale":b<30?"surpoids":"obésité";
-  let x='<div class="card"><h2>Tes besoins</h2><div class="stats">'
+  let x='<div class="card"><h2>💡 Conseil du jour</h2><p style="margin:0">'+esc(smartTip())+'</p></div><div class="card"><h2>Tes besoins</h2><div class="stats">'
    +st(r10(tgt)+" kcal","Objectif · "+G[0],"var(--acc)")+st(r10(tdee)+" kcal","Maintien")+st(Math.round(P)+" g","Protéines / jour")+"</div>"
    +`<div style="display:flex;height:12px;border-radius:6px;overflow:hidden;margin:4px 0 10px">${mac.map(q=>`<div style="flex:${q[1]*q[2]};background:${q[3]}"></div>`).join("")}</div>`
    +`<ul>${mac.map(q=>`<li><span><b style="color:${q[3]}">${q[0]}</b><small>${Math.round(q[1]*q[2])} kcal · ${Math.round(100*q[1]*q[2]/mac.reduce((t,q)=>t+q[1]*q[2],0))} %</small></span><b>${Math.round(q[1])} g</b></li>`).join("")}</ul>`
@@ -981,7 +983,7 @@ const PHN=[
 const cycSym=(d=today())=>(S.cyc&&S.cyc.sym&&S.cyc.sym[d])||null;
 function renderCyc(){const c=cycInfo(),C=S.cyc||{},st=(C.starts||[]).slice(-1)[0]||"",v=(C.ent||{})[st]||{},sd=cycSym();
  const symTxt=sd?`<p class="hint" style="margin:8px 0 0">Symptômes du jour : ${sd.s.length?esc(sd.s.join(", ")):"aucun"} · Douleurs : ${esc(sd.dl)}${sd.inb?" <b>(inhabituelles ou très fortes)</b>":""}</p>`:"";
- $("cyb").innerHTML=c?`<h2>Aujourd’hui : jour ${c.n} du cycle</h2><div style="font-size:1.3em;margin:6px 0 10px">${c.ph.e} ${c.ph.n}</div><div class="cbar"><i style="width:${Math.round(100*c.n/c.cl)}%"></i></div><ul>${c.ph.t.map(x=>`<li><span>${x}</span></li>`).join("")}</ul>${symTxt}<p class="hint" style="margin:8px 0 0">${PHN[c.i]}</p><p class="hint">Repères généraux : chaque cycle est différent, écoute ton corps.</p>`:'<h2>Cycle</h2><p class="hint">Renseigne le début de tes dernières règles ci-dessous pour voir ton jour de cycle et ta phase.</p>';
+ $("cyb").innerHTML=c?`<h2>Aujourd’hui : jour ${c.n} du cycle</h2><div style="font-size:1.3em;margin:6px 0 10px">${c.ph.e} ${c.ph.n}</div><div class="cbar"><i style="width:${Math.round(100*c.n/c.cl)}%"></i></div><ul>${c.ph.t.map(x=>`<li><span>${x}</span></li>`).join("")}</ul>${symTxt}<p class="hint" style="margin:8px 0 0">${PHN[c.i]}</p><p class="hint" style="margin:8px 0 0">💡 ${esc(smartTip())}</p><p class="hint">Repères généraux : chaque cycle est différent, écoute ton corps.</p>`:'<h2>Cycle</h2><p class="hint">Renseigne le début de tes dernières règles ci-dessous pour voir ton jour de cycle et ta phase.</p>';
  const row=(l,h)=>`<div style="margin-top:10px"><label>${l}</label>${h}</div>`;
  const myr=cycSym();
  $("cyf").innerHTML=row("Début des dernières règles",`<input id="cy_s" type="date" value="${st}">`)+row("Durée moyenne des règles (jours)",`<input id="cy_p" type="number" min="1" max="12" value="${C.pl||5}">`)+row("Durée moyenne du cycle (jours)",`<input id="cy_l" type="number" min="20" max="45" value="${C.cl||28}">`)+row("Intensité des règles",`<select id="cy_i">${opt(["légère","normale","abondante"],v.i||"normale")}</select>`)+row("Douleurs pendant les règles",`<select id="cy_d">${opt(["aucune","légères","modérées","fortes"],v.d||"aucune")}</select>`)+'<button class="btn" id="cy_ok">Enregistrer</button>'
@@ -1072,6 +1074,29 @@ $("onbgo").onclick=()=>{
   toast("✅ Bilan enregistré : "+LV[Math.round(avg)]+" · "+fq+" séance"+(fq>1?"s":"")+"/sem")};
 function rerunOnb(){document.body.classList.add("locked","onboarding");$("onb").hidden=false;prefillOnb();window.scrollTo(0,0)}
 $("onredo").onclick=rerunOnb;
+/* ===== Conseils intelligents (profil, séances, fatigue, cycle, alimentation) ===== */
+function smartTips(){
+  const P=S.profile||{},t=today(),last=(S.sessions.slice().sort((a,b)=>b.d.localeCompare(a.d))[0]||{}).d;
+  const days=last?dn(t)-dn(last):99,out=[];
+  const ci=S.cyc?cycInfo():null,sd=S.cyc?cycSym():null;
+  const intense=S.sessions.some(x=>x.d>=weekKey()&&(x.rpe||0)>=8);
+  if(intense)out.push("Tu as fait des séances intenses cette semaine : ajoute une séance de mobilité ou une marche légère pour la récupération.");
+  if(days>=4)out.push("Ça fait "+(days>=99?"un moment":days+" jours")+" sans séance : une séance courte de 20 à 30 minutes vaut mieux que rien du tout.");
+  if(days>=4&&(P.gear||[]).includes("street"))out.push("Tu veux t'entraîner sans matériel ? Prends une séance de street workout ou une séance maison, même 20 minutes.");
+  const pains=(P.pain||[]).filter(x=>x&&x!=="aucune");
+  if(pains.length)out.push("Tu as signalé des douleurs ("+pains.join(", ")+") : choisis les alternatives plus sûres dans le programme. Si la douleur persiste, parles-en à un professionnel de santé.");
+  if(P.sleep==="faible")out.push("Ton sommeil semble difficile : une séance légère ce soir (marche, étirements) t'aidera plus qu'une séance intense.");
+  if(P.stress==="fort")out.push("Le stress pèse en ce moment : 10 minutes de respiration lente ou de mobilité font baisser la tension, vraiment.");
+  const fl=(S.flog||{})[t]||[],prot=fl.reduce((a,x)=>a+(x.prot||0),0);
+  if(nutP&&prot&&prot<nutP*.6)out.push("Ton apport en protéines du jour semble faible ("+Math.round(prot)+" g sur "+nutP+" g visés) : ajoute une source de protéines à ton dîner.");
+  if(P.snack==="souvent")out.push("Grignotage fréquent : garde des collations simples sous la main (fruit + yaourt, amandes) plutôt que des produits sucrés.");
+  if(ci&&ci.i===3)out.push("Tu es en phase lutéale : privilégie des aliments rassasiants et plus de récupération, et allège le volume si tu te sens fatiguée.");
+  if(sd&&(sd.dl==="fortes"||sd.inb||sd.s.includes("Crampes")))out.push("Tu as des douleurs signalées aujourd'hui : remplace la séance intense par de la mobilité ou une marche douce.");
+  if(P.goal==="gras")out.push("Objectif perte de gras : garde tes charges et ajoute du cardio léger — le muscle protège ton métabolisme.");
+  if(P.goal==="muscle")out.push("Objectif prise de muscle : vise "+Math.round((P.w||70)*1.8)+" g de protéines par jour et une répétition de plus chaque semaine.");
+  out.push("La régularité bat la perfection : mieux vaut 3 séances tranquilles chaque semaine qu'une séance parfaite une fois par mois.");
+  return out}
+function smartTip(){const L=smartTips();return L[dn(today())%L.length]}
 /* ===== Plan d'action (généré depuis le bilan) ===== */
 function renderPlan(){const B=S.bilanLast,o=$("planout");
   if(!o)return;
