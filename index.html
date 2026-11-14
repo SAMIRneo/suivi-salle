@@ -90,7 +90,7 @@ li b{font-size:17px;font-weight:800}li small{color:var(--mute);display:block;fon
 .tabbar button{position:relative;flex:1;background:none;border:0;padding:8px 2px 6px;font:inherit;font-size:11px;font-weight:800;color:var(--mute);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:58px;transition:color .2s;letter-spacing:.02em}
 .tabbar button i{font-style:normal;font-size:24px;line-height:1;transition:transform .2s var(--ease)}
 .tabbar button[aria-current="page"]{color:var(--acc)}
-.tabbar button[data-t="perf"][aria-current="page"]{color:var(--cardio)}
+.tabbar button[data-t="tests"][aria-current="page"]{color:var(--cardio)}
 .tabbar button[data-t="progres"][aria-current="page"]{color:var(--prot)}
 .tabbar button[data-t="nut"][aria-current="page"]{color:var(--good)}
 .tabbar button[data-t="corps"][aria-current="page"]{color:var(--corps)}
@@ -547,7 +547,7 @@ window.addEventListener("load", function() {
     <p><b>Jours avec apport enregistré :</b> <span id="loggedDays">0</span> sur <span id="totalDays">0</span></p>
     <p><small>Appuie sur "Enregistrer apport" chaque jour pour suivre</small></p>
   </div>
-</div>
+</section>
 </main>
 <nav class="tabbar">
   <button data-t="seance" aria-current="page"><i aria-hidden="true">🏋️</i>Séance</button>
@@ -1147,6 +1147,23 @@ function renderFlog(){
     Object.assign(it,{q,kcal:F.k[0]*m*q,prot:F.k[1]*m*q,gl:F.k[2]*m*q,lip:F.k[3]*m*q});save();renderFlog()};
   o.onclick=e=>{const b=e.target.closest("[data-fdel]");if(!b)return;
     L.splice(+b.dataset.fdel,1);if(!L.length)delete flog()[d];save();renderFlog()}}
+/* ===== Bilan journalier (résume les apports notés dans Nutrition) ===== */
+function renderJournal(){
+  const d=today(),L=flog()[d]||[],o=$("dailyIntake"),tgt=S.profile.kcal||0;
+  if(!L.length){
+    o.innerHTML="<p class='empty'>Rien d'enregistré aujourd'hui. Note tes aliments dans l'onglet Nutrition, ils apparaîtront ici.</p><button class='btn alt' style='margin-top:8px' onclick=\"go('nut')\">Aller à Nutrition</button>";
+  } else {
+    const T=L.reduce((a,x)=>({k:a.k+x.kcal,p:a.p+x.prot,c:a.c+x.gl,l:a.l+x.lip}),{k:0,p:0,c:0,l:0});
+    o.innerHTML=`<div class="stats"><div class="stat"><b>${Math.round(T.k)}</b><span>kcal${tgt?" / "+tgt:""}</span></div><div class="stat"><b>${Math.round(T.p)} g</b><span>protéines</span></div><div class="stat"><b>${Math.round(T.c)} g</b><span>glucides</span></div><div class="stat"><b>${Math.round(T.l)} g</b><span>lipides</span></div></div>`
+    +`<ul>${L.map(x=>`<li><span><b>${esc(x.n)}</b><small>${Math.round(x.kcal)} kcal · ${x.q} portion${x.q>1?"s":""}</small></span></li>`).join("")}</ul>`;
+  }
+  const marked=Object.keys(S.jlog=S.jlog||{}).filter(k=>S.jlog[k]).length;
+  const days=Object.keys(flog()).length;
+  $("dailySummary").style.display="block";
+  $("loggedDays").textContent=marked;
+  $("totalDays").textContent=days;
+}
+$("recordIntake").onclick=()=>{const d=today();S.jlog=S.jlog||{};S.jlog[d]=true;save();renderJournal();toast("Journée enregistrée 👍")};
 /* ===== PLA : exemples de plans alimentaires ===== */
 const PLA=[
  {id:"perte",ic:"⚖️",n:"Perte de poids",desc:"Repas rassasiants : protéines à chaque repas, légumes à volonté, féculents modérés. Déficit léger, zéro frustration.",mac:"≈ 1 700 kcal · 120 g prot · 150 g glucides · 60 g lipides (repère 70 kg, à ajuster)",
@@ -1397,11 +1414,11 @@ function renderPlan(){const B=S.bilanLast,o=$("planout");
    +`<ul>${B.plan.map(x=>`<li style="display:block;padding:5px 0">✅ ${esc(x)}</li>`).join("")}</ul>`}
 $("planedit").onclick=rerunOnb;
 /* ===== Navigation ===== */
-const TT={seance:["Séance","Choisis ton programme et note tes séries."],tests:["Tests","Cardio, performance et calculateur."],progres:["Progrès","Tes courbes, rien d’autre."],nut:["Nutrition","Tes besoins, adaptés à ton profil."],corps:["Corps","Poids, mensurations et carnet."]};
-const TS={seance:["seance"],progres:["progres"],nut:["nut"]};
+const TT={seance:["Séance","Choisis ton programme et note tes séries."],tests:["Tests","Cardio, performance et calculateur."],progres:["Progrès","Tes courbes, rien d’autre."],nut:["Nutrition","Tes besoins, adaptés à ton profil."],corps:["Corps","Poids, mensurations et carnet."],journal:["Bilan","Ce que tu as mangé et tes apports du jour."]};
+const TS={seance:["seance"],progres:["progres"],nut:["nut"],journal:["journal"]};
 let perfView="cardio",corpsView="poids";
 document.querySelectorAll("#perfseg button").forEach(b=>b.onclick=()=>{perfView=b.dataset.v;
-  document.querySelectorAll("#perfseg button").forEach(x=>x.setAttribute("aria-pressed",x===b));go("perf")});
+  document.querySelectorAll("#perfseg button").forEach(x=>x.setAttribute("aria-pressed",x===b));go("tests")});
 document.querySelectorAll("#corpsseg button").forEach(b=>b.onclick=()=>{corpsView=b.dataset.v;
   document.querySelectorAll("#corpsseg button").forEach(x=>x.setAttribute("aria-pressed",x===b));go("corps")});
 document.querySelectorAll("#progsseg button").forEach(b=>b.onclick=()=>{const v=b.dataset.v;
@@ -1412,13 +1429,14 @@ function go(t){
   document.querySelectorAll(".tabbar button").forEach(x=>{x.setAttribute("aria-current",x.dataset.t===t?"page":"false")});
   const m=document.querySelector("main");m.classList.remove("tab-enter");void m.offsetWidth;m.classList.add("tab-enter");
   $("ttl").textContent=TT[t][0];$("sub").textContent=TT[t][1];
-  const vis=t==="perf"?[perfView]:t==="corps"?[corpsView]:TS[t];
-  ["seance","cardio","tests","calc","progres","nut","poids","mens","jcard","cyc","sauv"].forEach(id=>$(id).hidden=!vis.includes(id));
-  $("perfseg").hidden=t!=="perf";$("corpsseg").hidden=t!=="corps";$("progsseg").hidden=t!=="progres";$("journal").hidden=t!=="journal";
+  const vis=(t==="tests")?[perfView]:t==="corps"?[corpsView]:TS[t];
+  ["seance","cardio","tests","calc","progres","nut","poids","mens","jcard","cyc","sauv","journal"].forEach(id=>$(id).hidden=!vis.includes(id));
+  $("perfseg").hidden=t!=="tests";$("corpsseg").hidden=t!=="corps";$("progsseg").hidden=t!=="progres";$("journal").hidden=t!=="journal";
   if(t==="seance")renderSeance();
-  if(t==="perf"){if(perfView==="cardio")renderCardio();if(perfView==="tests")renderTests();if(perfView==="calc")prefillCalc()}
+  if(t==="tests"){if(perfView==="cardio")renderCardio();if(perfView==="tests")renderTests();if(perfView==="calc")prefillCalc()}
   if(t==="progres")renderProgres();
   if(t==="nut")openNut();
+  if(t==="journal")renderJournal();
   if(t==="corps"){const f=gen()==="f";document.querySelector('#corpsseg [data-v="cyc"]').hidden=!f;
     if(corpsView==="cyc"&&!f){corpsView="poids";document.querySelector('#corpsseg [data-v="poids"]').setAttribute("aria-pressed","true");document.querySelector('#corpsseg [data-v="cyc"]').setAttribute("aria-pressed","false");$("poids").hidden=false}
     if(corpsView==="mens")renderMensProgression();
