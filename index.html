@@ -9,16 +9,16 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Suivi salle – Basic-Fit Versailles">
 <meta property="og:description" content="Carnet de musculation gratuit : programmes, charges, cardio, nutrition, suivi du cycle et progrès. 100 % privé, tes données restent sur ton téléphone.">
-<meta property="og:url" content="https://samirneo.github.io/suivi-salle/">
+<meta property="og:url" content="https://suivi-salle.github.io/suivi-salle/">
 <meta property="og:locale" content="fr_FR">
-<link rel="canonical" href="https://samirneo.github.io/suivi-salle/">
+<link rel="canonical" href="https://suivi-salle.github.io/suivi-salle/">
 <meta name="apple-mobile-web-app-title" content="Suivi salle">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Suivi salle – Basic-Fit Versailles</title>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Suivi salle","applicationCategory":"HealthApplication","operatingSystem":"Web","inLanguage":"fr","url":"https://samirneo.github.io/suivi-salle/","description":"Carnet de musculation : programmes, charges, cardio, nutrition, suivi du cycle et progrès.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Suivi salle","applicationCategory":"HealthApplication","operatingSystem":"Web","inLanguage":"fr","url":"https://suivi-salle.github.io/suivi-salle/","description":"Carnet de musculation : programmes, charges, cardio, nutrition, suivi du cycle et progrès.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
 <style>
 :root{--bg:#eef2f7;--card:#ffffff;--ink:#0f172a;--mute:#64748b;--line:#e2e8f0;--acc:#ff5a1f;--acc-soft:rgba(255,90,31,.14);--acc-ink:#ffffff;--good:#16a34a;--good-soft:rgba(22,163,74,.14);--good-ink:#166534;--danger:#ef4444;--danger-soft:rgba(239,68,68,.14);--prot:#2563eb;--prot-soft:rgba(37,99,235,.14);--gluc:#eab308;--gluc-soft:rgba(234,179,8,.16);--lip:#db2777;--lip-soft:rgba(219,39,119,.14);--cardio:#0891b2;--cardio-soft:rgba(8,145,178,.14);--corps:#7c3aed;--corps-soft:rgba(124,58,237,.14);--soft:rgba(15,23,42,.04);--shadow:0 1px 2px rgba(15,23,42,.05),0 12px 32px rgba(15,23,42,.10);--ease:cubic-bezier(.2,.8,.2,1);--ease-out:cubic-bezier(.16,1,.3,1);
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -67,7 +67,7 @@ li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding
 li:first-child{border-top:0}
 li b{font-size:17px;font-weight:800}li small{color:var(--mute);display:block;font-size:12px}
 .x{background:none;border:0;color:var(--mute);font-size:18px;cursor:pointer;min-width:44px;min-height:44px;border-radius:10px;transition:background .15s,color .15s}
-.x:hover{background:var(--soft);color:#ef4444}
+.x:hover{background:var(--soft);color:var(--danger)}
 .stats{display:flex;gap:8px;margin-bottom:12px}
 .stat{flex:1;background:var(--soft);border-radius:12px;padding:12px 10px;border:1px solid var(--line)}
 .stat b{display:block;font-size:24px;font-weight:900;letter-spacing:-.6px;font-variant-numeric:tabular-nums;line-height:1.1}
@@ -106,7 +106,7 @@ body:not(.locked) #auth{display:none}
 body.onboarding #auth{display:none}
 #auth{max-width:420px;margin:0 auto;padding:48px 20px 32px}
 #onb{max-width:480px;margin:0 auto;padding:36px 20px 32px}
-.err{color:#ef4444;font-size:14px;min-height:20px;margin:8px 0 0;font-weight:600}
+.err{color:var(--danger);font-size:14px;min-height:20px;margin:8px 0 0;font-weight:600}
 .lnk{display:block;background:none;border:0;color:var(--mute);font:inherit;text-decoration:underline;padding:12px;cursor:pointer;width:100%}
 .chk{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px;color:var(--ink)}.chk input{width:auto;min-height:0;accent-color:var(--acc)}
 .seg{display:flex;background:var(--soft);border-radius:12px;padding:4px;gap:4px;margin:0 0 14px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;mask-image:linear-gradient(90deg,#000 94%,transparent)}
@@ -169,12 +169,16 @@ summary::-webkit-details-marker{display:none}
     <div class="row" style="margin-top:10px"><div><label for="on_a">Âge</label><input id="on_a" type="number" inputmode="numeric"></div><div><label for="on_h">Taille (cm)</label><input id="on_h" type="number" inputmode="numeric"></div></div>
     <div style="margin-top:10px"><label for="on_w">Poids (kg)</label><input id="on_w" type="number" inputmode="decimal" step="0.1" min="0"></div>
     <div style="margin-top:10px"><label for="on_gl">Objectif</label><select id="on_gl"><option value="muscle">Prendre du muscle</option><option value="gras">Perdre du gras</option><option value="force">Gagner en force</option><option value="endurance">Gagner en endurance</option><option value="forme">Être en forme</option></select></div>
-    <div style="margin-top:10px"><label>Maladies ou conditions médicales (plusieurs choix)</label><div class="chips" id="on_mal" style="margin-top:6px"><button type="button" data-v="aucune">Aucune</button><button type="button" data-v="asthme">Asthme</button><button type="button" data-v="diabete">Diabète</button><button type="button" data-v="hypertension">Hypertension</button><button type="button" data-v="cardiaque">Problème cardiaque</button><button type="button" data-v="epilepsie">Épilepsie</button><button type="button" data-v="thyroide">Thyroïde</button><button type="button" data-v="grossesse">Grossesse</button><button type="button" data-v="autre">Autre</button></div><input id="on_maltxt" placeholder="Précise si tu veux (optionnel)" style="margin-top:6px" aria-label="Préciser une maladie"><p class="hint" style="margin-top:6px">⚠️ Ces infos servent seulement à adapter les conseils de l'app. En cas de maladie, demande l'avis de ton médecin avant un programme intense.</p></div>
     <div class="row" style="margin-top:10px"><div><label for="on_fq">Séances par semaine</label><select id="on_fq"><option value="2">1 à 2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5 ou plus</option></select></div><div><label for="on_exp">Expérience</label><select id="on_exp"><option value="d">Débutant (moins de 6 mois)</option><option value="i">Intermédiaire</option><option value="a">Avancé</option></select></div></div>
+  <div style="margin-top:10px"><label for="on_time">Temps par séance</label><select id="on_time"><option value="30">≈ 30 min</option><option value="45" selected>≈ 45 min</option><option value="60">≈ 1 h</option><option value="75">1 h et plus</option></select></div>
   </div>
-  <div class="card">
+  <button class="btn alt" id="onb-more" style="margin-top:16px;width:100%;">Voir plus d'options ▼</button>
+  <div class="card" id="onb-optionnel" hidden>
+    <div class="row" style="margin-top:10px"><div><label>Maladies ou conditions médicales (plusieurs choix)</label><div class="chips" id="on_mal" style="margin-top:6px"><button type="button" data-v="aucune">Aucune</button><button type="button" data-v="asthme">Asthme</button><button type="button" data-v="diabete">Diabète</button><button type="button" data-v="hypertension">Hypertension</button><button type="button" data-v="cardiaque">Problème cardiaque</button><button type="button" data-v="epilepsie">Épilepsie</button><button type="button" data-v="thyroide">Thyroïde</button><button type="button" data-v="grossesse">Grossesse</button><button type="button" data-v="autre">Autre</button></div><input id="on_maltxt" placeholder="Précise si tu veux (optionnel)" style="margin-top:6px" aria-label="Préciser une maladie"><p class="hint" style="margin-top:6px">⚠️ Ces infos servent seulement à adapter les conseils de l'app. En cas de maladie, demande l'avis de ton médecin avant un programme intense.</p></div></div>
+  </div>
+  <div class="card" id="onb-practice" hidden>
     <details>
-      <summary>Tests de forme (optionnel, pour calculer ton niveau)</summary>
+      <summary>🎯 Ta pratique (matériel, envies, contraintes)</summary>
       <p class="hint" style="margin-top:8px">Laisse vide ce que tu ne sais pas encore : tu pourras refaire ton bilan plus tard (Corps → Réglages).</p>
       <div class="row" style="margin-top:10px"><div><label for="on_qpu">Pompes max (rép.)</label><input id="on_qpu" type="number" inputmode="numeric"></div><div><label for="on_qtr">Tractions max (rép.)</label><input id="on_qtr" type="number" inputmode="numeric"></div></div>
       <div class="row" style="margin-top:10px"><div><label for="on_qgi">Gainage max (s)</label><input id="on_qgi" type="number" inputmode="numeric"></div><div><label for="on_qsq">Squat max (kg)</label><input id="on_qsq" type="number" inputmode="decimal" min="0"></div></div>
@@ -278,7 +282,7 @@ summary::-webkit-details-marker{display:none}
     <h2 id="dayT" style="margin-top:14px">Aujourd’hui</h2><ul id="dayL"></ul>
   </div>
 </section>
-<div class="seg" id="perfseg" hidden role="group" aria-label="Choisir la vue Performance">
+<div class="seg" id="perfseg" hidden role="group" aria-label="Choisir la vue Tests">
   <button type="button" data-v="cardio" aria-pressed="true">🏃 Cardio</button>
   <button type="button" data-v="tests" aria-pressed="false">💪 Tests</button>
   <button type="button" data-v="calc" aria-pressed="false">🧮 Charge max</button>
@@ -297,7 +301,7 @@ summary::-webkit-details-marker{display:none}
 </section>
 <section id="tests" hidden>
   <div class="card">
-    <h2>Performance</h2>
+    <h2>Tests</h2>
     <label for="ta">Test</label><select id="ta"></select>
     <div class="row" style="margin-top:10px"><div><label for="tv">Résultat (<span id="tu"></span>)</label><input id="tv" type="number" inputmode="decimal" step="0.01" min="0"></div><div id="tdw"><label for="tdate">Date</label><input id="tdate" type="date"></div></div>
     <button class="btn" id="tadd">Enregistrer</button>
@@ -327,7 +331,7 @@ summary::-webkit-details-marker{display:none}
     <button type="button" data-v="all" aria-pressed="true">Tout</button>
     <button type="button" data-v="muscu" aria-pressed="false">🏋️ Muscu</button>
     <button type="button" data-v="cardio" aria-pressed="false">🏃 Cardio</button>
-    <button type="button" data-v="perf" aria-pressed="false">💪 Perf</button>
+    <button type="button" data-v="tests" aria-pressed="false">💪 Tests</button>
     <button type="button" data-v="corps" aria-pressed="false">⚖️ Corps</button>
   </div>
   <div id="pgal"></div>
@@ -371,8 +375,46 @@ summary::-webkit-details-marker{display:none}
     <button class="btn" id="madd">Enregistrer</button>
     <p class="hint">Mesure-toi au même endroit, le matin, sans serrer.</p>
   </div>
+  <div id="mensProgression" style="margin-top:12px; padding:8px; background:var(--soft); border-radius:8px; display:none">
+    <p><b>Progression :</b> <span id="firstMeasure">—</span> → <span id="lastMeasure">—</span> (<span id="diffSign"></span>${fnDiff})</p>
+    <p><font size="1">Mesures enregistrées : <span id="countMeasures">0</span></font></p>
+  </div>
   <div class="card" id="mbody"></div>
 </section>
+
+<script>
+function renderMensProgression() {
+  const gsx = $("gsx").value;
+  if (!gsx || gsx === "n") {
+    $("mensProgression").style.display = "none";
+    return;
+  }
+  
+  // Récupérer les mesures pour ce type
+  const allMens = JSON.parse(localStorage.getItem("mensMeasurements") || "{}");
+  const measurements = allMens[gsx] || [];
+  
+  if (!measurements.length) {
+    $("mensProgression").style.display = "none";
+    return;
+  }
+  
+  // Trier par date
+  const sorted = measurements.sort((a, b) => new Date(a.d) - new Date(b.d));
+  const first = sorted[0];
+  const last = sorted[sorted.length - 1];
+  
+  $("#firstMeasure").textContent = fn(first.v) + " cm";
+  $("#lastMeasure").textContent = fn(last.v) + " cm";
+  
+  const diff = last.v - first.v;
+  $("#diffSign").textContent = diff > 0 ? "+" : "";
+  $("#diffValue").textContent = Math.abs(diff);
+  
+  $("countMeasures").textContent = sorted.length;
+  $("mensProgression").style.display = "block";
+}
+</script>
 <section id="jcard" hidden>
   <div class="card"><h2>📔 Carnet</h2>
     <label for="jd">Date</label><input id="jd" type="date">
@@ -386,10 +428,85 @@ summary::-webkit-details-marker{display:none}
     <ul id="jlist" style="margin-top:8px"></ul>
   </div>
 </section>
-<section id="cyc" hidden><div class="card" id="cyb"></div><div class="card"><h2>🌸 Cycle</h2><div id="cyf"></div></div></section>
+<section id="cyc" hidden><div class="card" id="cyb"></div></section>
+<!-- Cycle tracking UI (simple) -->
+<div id="cycleUI" hidden class="card" style="margin-top:12px">
+  <h2>🌸 Cycle</h2>
+  <div class="row" style="margin-top:10px">
+    <div><label for="cycleLastStart">Dernier début de règles</label><input id="cycleLastStart" type="date"></div>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <div><label for="cycleLength">Longueur moyenne</label><input id="cycleLength" type="number" value="28" min="21" max="35"></div>
+  </div>
+  <div style="margin-top:14px">
+    <button class="btn" id="cycleToday">Aujourd'hui</button>
+    <button class="btn alt" id="cycleReset">Réinitialiser</button>
+  </div>
+  <div id="cycleResult" style="margin-top:12px; padding:8px; background:var(--soft); border-radius:8px; display:none">
+    <p><b>Prochain estimé :</b> <span id="nextPeriod"></span></p>
+  </div>
+</div>
+
+<script>
+function checkCycleConsent(){
+  if(S.profile.consentementCycle)return true;
+  if(!confirm("⚠️ Les données du cycle sont stockées sur ton appareil. Tu peux les supprimer à tout moment dans Réglages. Continues-tu ?"))return false;
+  S.profile.consentementCycle=true;save();
+  return true;
+}
+
+function updateCycleUI() {
+  if(!checkCycleConsent()){$("cycleUI").hidden=true;return;}
+  const lastStart = $("cycleLastStart").valueAsDate;
+  const cycleLength = parseInt($("cycleLength").value) || 28;
+  
+  $("cycleResult").style.display = "none";
+  $("nextPeriod").textContent = "";
+  
+  if (!lastStart) return;
+  
+  // Calculer prochain jour estimé
+  const next = new Date(lastStart);
+  next.setDate(lastStart.getDate() + cycleLength);
+  $("nextPeriod").textContent = next.toLocaleDateString("fr-FR", {
+    day: "numeric", month: "short"
+  });
+  
+  // Simple affichage calendrier des 4 prochaines semaines
+  const daysEl = document.createElement('div');
+  daysEl.style.marginTop = "8px";
+  daysEl.innerHTML = '<p style="font-size:12px;color:var(--mute)">Prochaines dates estimées :</p>';
+  
+  for (let i = 1; i <= 4; i++) {
+    const d = new Date(lastStart);
+    d.setDate(lastStart.getDate() + cycleLength * i);
+    const dayName = d.toLocaleDateString("fr-FR", {weekday: "short"});
+    daysEl.innerHTML += `<span style="margin-right:8px;font-size:12px">${dayName} ${d.getDate()}</span>`;
+  }
+  
+  $("cycleResult").appendChild(daysEl).style.display = "block";
+}
+
+$("cycleToday").onclick = function() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  $("cycleLastStart").value = today.toISOString().slice(0, 10);
+  $("cycleUI").hidden = false;
+  updateCycleUI();
+  toast("✅ Date de début enregistrée");
+};
+
+$("cycleReset").onclick = function() {
+  $("cycleLastStart").value = "";
+  $("cycleUI").hidden = true;
+  $("cycleResult").innerHTML = "";
+  toast("Réinitialisé");
+};
+</script>
+
 <section id="sauv" hidden>
   <div class="card">
-    <h2>Compte et sauvegarde</h2>
+    <h2>Réglages et sauvegarde</h2>
     <p class="hint" id="who" style="margin-top:0"></p>
     <p class="hint" style="margin-top:0">Les données restent sur cet appareil. Exporte-les de temps en temps pour ne rien perdre.</p>
     <button class="btn alt" id="exp">Copier mes données</button>
@@ -408,17 +525,35 @@ summary::-webkit-details-marker{display:none}
       <p class="hint" id="imphint">⚠️ La restauration remplace les données actuelles de ce compte.</p>
       <button class="btn" id="imp_ok" style="margin-top:8px">Restaurer ces données</button>
     </div>
+    <label class="chk" style="margin-top:8px;display:block">
+      <input type="checkbox" id="hide_calories" onchange="S.profile.hide_calories=this.checked;save();renderNut()">
+      Masquer l'affichage des calories et des macronutriments
+    </div>
     <button class="btn alt" id="delacc" style="color:var(--danger);border-color:var(--danger);border-style:dashed;margin-top:16px">Supprimer mon compte</button>
     <button class="btn alt" id="logout">Se déconnecter</button>
   </div>
 </section>
+<section id="journal" hidden>
+  <div class="card" style="margin-bottom:20px">
+    <h2>📔 Bilan journalier</h2>
+    <p class="hint">Marque what tu as mangé / tes apports aujourd'hui</p>
+    <div id="dailyIntake" style="margin-top:12px"></div>
+    <button class="btn" id="recordIntake">Enregistrer apport du jour</button>
+    <p class="hint" style="margin-top:8px;font-size:12px">Appuis pour enregistrer un nouvel aliment / chose</p>
+  </div>
+  <div id="dailySummary" style="margin-top:12px; display:none; padding:8px; background:var(--soft); border-radius:8px">
+    <p><b>Jours avec apport enregistré :</b> <span id="loggedDays">0</span> sur <span id="totalDays">0</span></p>
+    <p><small>Appuie sur "Enregistrer apport" chaque jour pour suivre</small></p>
+  </div>
+</div>
 </main>
 <nav class="tabbar">
   <button data-t="seance" aria-current="page"><i aria-hidden="true">🏋️</i>Séance</button>
-  <button data-t="perf"><i aria-hidden="true">🏃</i>Perf</button>
+  <button data-t="tests"><i aria-hidden="true">🏃</i>Tests</button>
   <button data-t="progres"><i aria-hidden="true">📈</i>Progrès</button>
   <button data-t="nut"><i aria-hidden="true">🍽️</i>Nutrition</button>
   <button data-t="corps"><i aria-hidden="true">⚖️</i>Corps</button>
+  <button data-t="journal"><i aria-hidden="true">📔</i>Bilan</button>
 </nav>
 <div id="toast" class="toast" role="status" aria-live="polite" tabindex="-1" hidden></div>
 <div id="upbar" class="toast" role="status" aria-live="polite" hidden style="background:var(--acc);color:var(--acc-ink);bottom:calc(140px+env(safe-area-inset-bottom,0px))">Nouvelle version disponible. <button id="upbtn" style="background:none;border:0;color:inherit;font:inherit;font-weight:800;text-decoration:underline;cursor:pointer;padding:0">Recharger</button></div>
@@ -472,7 +607,15 @@ function renderMens(){
 $("gsx").onchange=()=>{S.profile.g=$("gsx").value;if(S.profile.g!=="n"){S.profile.sx=S.profile.g;$("nsx").value=S.profile.g;$("on_sx").value=S.profile.g}save();all()};
 $("mk").onchange=renderMens;
 $("madd").onclick=()=>{const v=parseFloat($("mv").value);if(!(v>0)){toast("⚠️ "+"Indique ta mesure en cm.");return}
-  mens().push({id:uid(),t:Date.now(),d:$("md").value||today(),k:$("mk").value,v});save();$("mv").value="";renderMens();toast("Mesure enregistrée")};
+  // Enregistrer en localStorage pour progression
+  let allMens = JSON.parse(localStorage.getItem("mensMeasurements") || "{}");
+  const gsx = $("gsx").value;
+  if (!allMens[gsx]) allMens[gsx] = [];
+  allMens[gsx].push({id:uid(),t:Date.now(),d:$("md").value||today(),k:$("mk").value,v:v});
+  localStorage.setItem("mensMeasurements", JSON.stringify(allMens));
+  // Mettre à jour l'état en mémoire
+  mens().push({id:uid(),t:Date.now(),d:$("md").value||today(),k:$("mk").value,v});
+  save();$("mv").value="";renderMens();renderMensProgression();toast("Mesure enregistrée")};
 $("mbody").onclick=e=>{const id=e.target.dataset.mdel;if(!id)return;S.mens=mens().filter(x=>x.id!==id);save();renderMens()};
 /*__C1__*/
 /* ===== Programmes par temps disponible (sources : Built With Science, Muscle & Strength, PubMed/de Salles 2009 pour les repos) ===== */
@@ -707,7 +850,7 @@ const DEFIS=[
  {id:"proteines-diner",c:"nutri",t:"Assure-toi d'avoir une vraie source de protéines au dîner : viande, poisson, œufs, légumineuses ou tofu."},
  {id:"respiration",c:"reco",t:"Fais 3 minutes de respiration lente (inspire 4 secondes, expire 6 secondes) pour faire baisser la tension de la journée."},
  {id:"squats-rep",c:"train",t:"Répartis 3 séries de 15 squats au poids du corps dans ta journée."},
- {id:"pompes-max",c:"train",t:"Teste ton maximum de pompes en une seule série et note le résultat dans Perf → Performance."},
+ {id:"pompes-max",c:"train",t:"Teste ton maximum de pompes en une seule série et note le résultat dans Tests → ."},
  {id:"record",c:"train",t:"Sur un exercice du programme du jour, vise une répétition de plus que ta dernière séance."},
  {id:"fentes",c:"train",t:"Fais 20 fentes par jambe, réparties dans la journée : avant la douche, avant le repas, quand tu veux."},
  {id:"dorsaux",c:"train",t:"Fais 3 séries de 15 superman (dos) : renforce ton dos en douceur, sans matériel."},
@@ -764,7 +907,7 @@ function renderCardio(){
   $("ckw").hidden=$("cvr").hidden=jump;$("cjw").hidden=!jump;
   $("cwk").innerHTML=`<div class="stat"><b>${Math.round(W.reduce((s,x)=>s+x.min,0))} min</b><span>Cardio cette semaine</span></div><div class="stat"><b>${fn(W.reduce((s,x)=>s+x.km,0))} km</b><span>Distance</span></div><div class="stat"><b>${W.reduce((s,x)=>s+x.j,0)}</b><span>Sauts</span></div>`;
   const L=C().filter(x=>x.a===a).sort((p,q)=>q.d.localeCompare(p.d)||q.t-p.t),o=$("cbody");
-  if(!L.length){o.innerHTML=`<h2>${esc(a)}</h2><p class="empty">Aucune séance pour cette activité.</p>`;return}
+  if(!L.length){o.innerHTML=`<h2>${esc(a)}</h2><p class="empty">Tu n'as pas encore enregistré de séance. C'est normal pour démarrer !</p><button class="btn alt" style="margin-top:8px" onclick="location.href='\#seance'">Commencer une séance</p>`;return}
   const by={};L.forEach(x=>{const y=jump?x.j:x.v;by[x.d]=Math.max(by[x.d]||0,y)});
   const pts=Object.keys(by).sort().map(k=>({x:k,y:by[k]})),mx=f=>Math.max(...L.map(f)),st=(b,s)=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`;
   const top=jump?st(mx(x=>x.j),"Record de sauts")+st(Math.round(mx(x=>x.j/x.min)),"Meilleur sauts/min")+st(L.reduce((s,x)=>s+x.j,0),"Total de sauts"):st(fn(mx(x=>x.v))+" km/h","Vitesse moy. record")+st(fn(mx(x=>x.km))+" km","Distance record")+st(fn(mx(x=>x.min))+" min","Durée record");
@@ -782,7 +925,7 @@ $("cadd").onclick=()=>{
   ["cm","ck","cv","cx","cj"].forEach(i=>$(i).value="");renderCardio();renderCh();
   toast(prev>0&&cur>prev?"🏆 Nouveau record !":"Cardio enregistré")};
 $("cbody").onclick=e=>{const id=e.target.dataset.cdel;if(!id)return;S.cardio=C().filter(x=>x.id!==id);save();renderCardio();renderCh()};
-/* ===== Performance (tests) ===== */
+/* ===== Tests (résultats) ===== */
 const TD=[["Saut en hauteur (détente)","cm",1],["Saut en longueur (sans élan)","cm",1],["Sprint 30 m","s",0],["Sprint 100 m","s",0],["Tractions max","rép.",1],["Pompes max","rép.",1],["Gainage","s",1]];
 function T(){return S.tests=S.tests||[]}
 function TDs(){return (TX[gen()]||[]).concat(TD,S.tdefs=S.tdefs||[])}
@@ -808,7 +951,7 @@ $("tn_ok").onclick=()=>{const n=$("tn_n").value.trim(),u=($("tn_u").value.trim()
   if(!TDs().some(d=>d[0]===n))S.tdefs.push([n,u,up?1:0]);save();$("tneww").hidden=true;fillT();$("ta").value=n;renderTests();toast("Test « "+n+" » créé")};
 $("tbody").onclick=e=>{const id=e.target.dataset.tdel;if(!id)return;S.tests=T().filter(x=>x.id!==id);save();renderTests()};
 $("tdate").value=$("md").value=today();
-/* ===== Calculateur de charge max (onglet Perf) ===== */
+/* ===== Calculateur de charge max (onglet Tests) ===== */
 const PCT=[100,95,93,90,87,85,83,80,77,75,73,70,68,67,65,63,62,61,60,59];
 function est(w,r){
   if(r<=1)return{rm:w,lo:w,hi:w};
@@ -876,11 +1019,11 @@ function renderProgres(){
      const pts=byDayBest(L,c=>jump?c.j:c.v);
      const rec=Math.max(...L.map(c=>jump?c.j:c.v));
      return `<h3 style="margin:10px 0 2px;font-size:13px;color:var(--mute)">${esc(a)} — ${jump?"sauts":"vitesse moy. (km/h)"} · record ${fn(rec)}</h3>${chart(pts,null,110)}`}).join("");
-   else x+='<p class="empty">Aucune séance de cardio enregistrée.</p>';
+   else x+='<p class="empty">Aucune séance de cardio enregistrée.</p><button class="btn alt" style="margin-top:8px" onclick="location.href='\#seance'">Commencer une séance</p>';
    x+="</div>"}
   /* Tests de performance : une courbe par test */
   {const names=[...new Set(T().map(t=>t.n))];
-   if(names.length)x+=`<div class="card pgcard" data-cat="perf"><h2>💪 Performance</h2>${names.map(n=>{const L=T().filter(t=>t.n===n),d=TDs().find(q=>q[0]===n)||[n,"",1],up=d[2];
+   if(names.length)x+=`<div class="card pgcard" data-cat="tests"><h2>💪 Tests</h2>${names.map(n=>{const L=T().filter(t=>t.n===n),d=TDs().find(q=>q[0]===n)||[n,"",1],up=d[2];
      const pts=byDayBest(L,t=>t.v),rec=up?Math.max(...L.map(t=>t.v)):Math.min(...L.map(t=>t.v));
      return `<h3 style="margin:10px 0 2px;font-size:13px;color:var(--mute)">${esc(n)} · record ${fn(rec)} ${d[1]}</h3>${chart(pts,null,110)}`}).join("")}</div>`}
   /* Corps : poids */
@@ -949,7 +1092,7 @@ function openNut(){const P=S.profile,l=(S.body||[]).slice().sort((a,b)=>a.d.loca
   if(S.profile.sx&&S.profile.sx!=="n")S.profile.g=S.profile.sx;save();renderNut()});
 function renderNut(){
   const h=parseFloat($("nh").value),w=parseFloat($("nw").value),a=parseInt($("na").value),F=$("nsx").value==="f",gl=GMAP[$("ngoal").value]||"mnt",G=GOALS[gl],ld=trainLoad(),
-   act=ld.n<1?1.2:ld.n<=3?1.375:ld.n<=5?1.55:1.725;
+   act=ld.n<1?1.2:ld.n<=3?1.375:ld.n<=5?1.55:1.725,hc=S.profile.hide_calories||false;
   if(!(h>=120&&h<=230)||!(w>=30&&w<=300)||!(a>0)){$("nout").innerHTML='<div class="card"><p class="empty">Renseigne ta taille, ton poids et ton âge ci-dessus.</p></div>';return}
   const st=(v,l,c)=>`<div class="stat"><b${c?` style="color:${c}"`:""}>${v}</b><span>${l}</span></div>`,ex=t=>`<p class="hint">${t}</p>`,
    m=h/100,b=w/(m*m),kid=a>0&&a<18,r10=v=>Math.round(v/10)*10,
@@ -963,15 +1106,15 @@ function renderNut(){
   let x='<div class="card"><h2>Tes besoins</h2><div class="stats">'
    +st(r10(tgt)+" kcal","Objectif · "+G[0],"var(--acc)")+st(r10(tdee)+" kcal","Maintien")+st(Math.round(P)+" g","Protéines / jour")+"</div>"
    +`<div style="display:flex;height:12px;border-radius:6px;overflow:hidden;margin:4px 0 10px">${mac.map(q=>`<div style="flex:${q[1]*q[2]};background:${q[3]}"></div>`).join("")}</div>`
-   +`<ul>${mac.map(q=>`<li><span><b style="color:${q[3]}">${q[0]}</b><small>${Math.round(q[1]*q[2])} kcal · ${Math.round(100*q[1]*q[2]/mac.reduce((t,q)=>t+q[1]*q[2],0))} %</small></span><b>${Math.round(q[1])} g</b></li>`).join("")}</ul>`
+   +(!hc?`<ul>${mac.map(q=>`<li><span><b style="color:${q[3]}">${q[0]}</b><small>${Math.round(q[1]*q[2])} kcal · ${Math.round(100*q[1]*q[2]/mac.reduce((t,q)=>t+q[1]*q[2],0))} %</small></span><b>${Math.round(q[1])} g</b></li>`).join("")}</ul>`:`)
    +ex(`Besoins = métabolisme de base (Mifflin-St Jeor) × activité (${act}, déduit de tes ${fn(ld.n)} jour(s) d’entraînement par semaine). Ajuste selon l’évolution de ton poids sur 2 à 3 semaines.`)
    +ex(`<b>${G[0]} :</b> ${G[4]}${gl==="fat"&&!low?` Le déficit reste modéré, jamais sous ${F?1200:1500} kcal.`:""}${low&&gl==="fat"?" <b>Pas de déficit conseillé</b> avec un IMC sous 18,5." :""}`)
    +(kid?ex("⚠️ Moins de 18 ans : ces repères adultes ne s’appliquent pas, appuie-toi sur un médecin ou un diététicien."):ex(`Repères : IMC ${fn(b)} (${cat}) · masse grasse estimée ≈ ${fn(Math.max(3,Math.min(60,1.2*b+.23*a-10.8*(F?0:1)-5.4)))} % (Deurenberg, marge ±4 à 5 points).`))+"</div>";
-  x+='<div class="card"><h2>Les bases, en simple</h2><ul>'
+  x+=(!hc?'<div class="card"><h2>Les bases, en simple</h2><ul>'
    +`<li style="display:block"><b>Protéines</b><small>Construisent et réparent le muscle. Visée pour toi : ${Math.round(P)} g/jour (≈ ${fn(pk)} g/kg). Viandes, poissons, œufs, laitages, légumineuses.</small></li>`
    +`<li style="display:block"><b>Glucides</b><small>Le carburant de tes séances. Privilégie riz, pâtes, pain complet, fruits, légumineuses. ≈ ${Math.round(Cg)} g/jour.</small></li>`
    +`<li style="display:block"><b>Lipides</b><small>Hormones et satiété, à ne pas couper. Huile d’olive, poissons, oléagineux. ≈ ${Math.round(Lp)} g/jour, minimum ${fn(.8*w)} g.</small></li>`
-   +`<li style="display:block"><b>Calories</b><small>Un déficit ou un surplus léger bat toujours un extrême : ${gl==="fat"?"−15 %":"+"+Math.round(G[1]*100)+" %"} suffit.</small></li></ul></div>`;
+   +`<li style="display:block"><b>Calories</b><small>Un déficit ou un surplus léger bat toujours un extrême : ${gl==="fat"?"−15 %":"+"+Math.round(G[1]*100)+" %"} suffit.</small> <span class="hint" style="font-size:10px;color:var(--mute)">⚠️ Ces informations peuvent être sensibles. Si tu as déjà eu de troubles alimentaires, tu peux mascher l'affichage des calories dans Réglages.</span></li></ul></div>':''
   x+='<div class="card"><h2>🍽️ Ce que j\'ai mangé</h2><p class="hint" style="margin:0 0 8px">Parcouris les catégories, ajoute ce que tu as mangé : l\'app calcule automatiquement tes apports du jour (calories, protéines, glucides, lipides).</p><div class="chips" id="fcat" style="margin-bottom:10px"></div><div id="flist"></div></div>';
   x+='<div class="card"><h2>📔 Apports du jour</h2><div id="fjout"></div></div>';
   x+=renderPLA();
@@ -1164,7 +1307,8 @@ function prefillOnb(){const P=S.profile||{},L=S.bilanLast||{};
  onSetChips("on_mal",L.maladies||P.maladies);$("on_maltxt").value=L.malTxt||P.malTxt||"";
  $("on_cyc").checked=!!S.cyc;
  $("onerr").textContent=""}
-$("onbgo").onclick=()=>{
+$("onb-more").onclick=()=>{$("onb-optionnel").hidden=!$("onb-optionnel").hidden;$("onb-practice").hidden=!$("onb-practice").hidden;$("onb-habits").hidden=!$("onb-habits").hidden};
+  $("onbgo").onclick=()=>{
   S.profile=S.profile||{};
   const sx=$("on_sx").value,a=parseInt($("on_a").value),h=parseFloat($("on_h").value),w=parseFloat($("on_w").value),gl=$("on_gl").value,fq=$("on_fq").value,exp=$("on_exp").value;
   if(!(a>=10&&a<=99)){$("onerr").textContent="Indique ton âge (10 à 99 ans).";$("on_a").focus();return}
@@ -1251,7 +1395,7 @@ function renderPlan(){const B=S.bilanLast,o=$("planout");
    +`<ul>${B.plan.map(x=>`<li style="display:block;padding:5px 0">✅ ${esc(x)}</li>`).join("")}</ul>`}
 $("planedit").onclick=rerunOnb;
 /* ===== Navigation ===== */
-const TT={seance:["Séance","Choisis ton programme et note tes séries."],perf:["Perf","Cardio, performance et calculateur."],progres:["Progrès","Tes courbes, rien d’autre."],nut:["Nutrition","Tes besoins, adaptés à ton profil."],corps:["Corps","Poids, mensurations et carnet."]};
+const TT={seance:["Séance","Choisis ton programme et note tes séries."],tests:["Tests","Cardio, performance et calculateur."],progres:["Progrès","Tes courbes, rien d’autre."],nut:["Nutrition","Tes besoins, adaptés à ton profil."],corps:["Corps","Poids, mensurations et carnet."]};
 const TS={seance:["seance"],progres:["progres"],nut:["nut"]};
 let perfView="cardio",corpsView="poids";
 document.querySelectorAll("#perfseg button").forEach(b=>b.onclick=()=>{perfView=b.dataset.v;
@@ -1268,13 +1412,14 @@ function go(t){
   $("ttl").textContent=TT[t][0];$("sub").textContent=TT[t][1];
   const vis=t==="perf"?[perfView]:t==="corps"?[corpsView]:TS[t];
   ["seance","cardio","tests","calc","progres","nut","poids","mens","jcard","cyc","sauv"].forEach(id=>$(id).hidden=!vis.includes(id));
-  $("perfseg").hidden=t!=="perf";$("corpsseg").hidden=t!=="corps";$("progsseg").hidden=t!=="progres";
+  $("perfseg").hidden=t!=="perf";$("corpsseg").hidden=t!=="corps";$("progsseg").hidden=t!=="progres";$("journal").hidden=t!=="journal";
   if(t==="seance")renderSeance();
   if(t==="perf"){if(perfView==="cardio")renderCardio();if(perfView==="tests")renderTests();if(perfView==="calc")prefillCalc()}
   if(t==="progres")renderProgres();
   if(t==="nut")openNut();
   if(t==="corps"){const f=gen()==="f";document.querySelector('#corpsseg [data-v="cyc"]').hidden=!f;
     if(corpsView==="cyc"&&!f){corpsView="poids";document.querySelector('#corpsseg [data-v="poids"]').setAttribute("aria-pressed","true");document.querySelector('#corpsseg [data-v="cyc"]').setAttribute("aria-pressed","false");$("poids").hidden=false}
+    if(corpsView==="mens")renderMensProgression();
     if(corpsView==="poids")renderBody();if(corpsView==="mens")renderMens();if(corpsView==="jcard")renderJ();if(corpsView==="cyc")renderCyc()}
   window.scrollTo(0,0)}
 addEventListener("scroll",()=>document.querySelector("header").classList.toggle("scrolled",scrollY>8),{passive:true});
@@ -1319,7 +1464,7 @@ async function hashPw(pw,salt){
   const enc=new TextEncoder(),k=await crypto.subtle.importKey("raw",enc.encode(pw),"PBKDF2",false,["deriveBits"]);
   const b=await crypto.subtle.deriveBits({name:"PBKDF2",salt:enc.encode(salt),iterations:100000,hash:"SHA-256"},k,256);
   return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("")}
-let creating=!Object.keys(accs()).length;
+let creating=true;
 function authView(){
   const has=Object.keys(accs()).length>0;
   $("atitle").textContent=creating?"Créer mon compte":"Connexion";
