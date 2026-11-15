@@ -696,6 +696,70 @@ const EXINFO={
 "Chat-vache (dos)":["À quatre pattes, alterne dos rond et dos creux lentement, en respirant.","🟢 Plus facile : amplitude douce, 6 reps.","🔴 Plus dur : 15 reps lentes en synchronisant la respiration."],
 "Étirement ischio-jambiers":["Assis ou debout, jambe tendue, penche le buste sans arrondir le dos.","🟢 Plus facile : genoux légèrement fléchis.","🔴 Plus dur : tenue 45-60 s."],
 "Épaules et nuque":["Cercles d'épaules, inclinaisons de tête douces, auto-grandissement.","🟢 Plus facile : amplitude réduite, sans forcer.","🔴 Plus dur : 2 min complètes, avec pauses de 10 s en fin d'amplitude."]};
+/* ===== Moteur de risque : exercice ↔ profil (douleurs & maladies) ===== */
+/* Tags : genoux, dos, epaules, poignets (douleurs déclarées) ; impact (sauts), hiit (intervalles intenses).
+   Consommé par la recommandation de programme, les défis du jour (defiRiskPenalty) et les badges de la vue Séance. */
+const RISK={
+"Squats sautés":["genoux","impact"],
+"Pistol squats":["genoux"],
+"Squats pistol (assistés)":["genoux"],
+"Fentes":["genoux"],
+"Fentes alternées":["genoux"],
+"Fentes basses (hanches)":["genoux"],
+"Squats":["genoux"],
+"Squats au poids du corps":["genoux"],
+"Presse à cuisses":["genoux"],
+"Leg extension":["genoux"],
+"Smith machine":["genoux","dos"],
+"Burpees":["genoux","impact","hiit"],
+"Jumping jacks":["genoux","impact"],
+"Corde à sauter (option)":["genoux","impact"],
+"Mountain climbers":["hiit","poignets"],
+"Dips (barres parallèles)":["epaules"],
+"Dips lestés (barres parallèles)":["epaules"],
+"Dips sur une chaise":["epaules"],
+"Dips assisté":["epaules"],
+"Pompes":["poignets"],
+"Pompes déclinées":["poignets","epaules"],
+"Pompes lestées":["poignets"],
+"Pompes (genoux si besoin)":["poignets"],
+"Pompes mains surélevées":["poignets"],
+"Tractions (ou australiennes)":["epaules"],
+"Tractions lestées (ou archer)":["epaules"],
+"Progression muscle-up":["epaules","poignets"],
+"Développé épaules (machine)":["epaules"],
+"Développé couché (machine)":["epaules"],
+"Développé incliné (machine)":["epaules"],
+"Relevés de jambes":["dos"],
+"Superman (dos)":["dos"],
+"Rowing assis":["dos"],
+"Mollets":[]};
+const riskPains=P=>((P&&P.pain)||[]).filter(x=>x&&x!=="aucune");
+const riskMals=P=>((P&&P.maladies)||[]).filter(x=>x&&x!=="aucune");
+function exRisk(name){const r=RISK[name];return r?r.slice():[]}
+/* Score de risque d’un programme : somme des pénalités par exercice (négatif = risqué pour ce profil). */
+function progRiskScore(p,P){
+  const pains=riskPains(P),mals=riskMals(P),asth=mals.includes("asthme"),cardio=mals.includes("hypertension")||mals.includes("cardiaque");
+  let s=0;
+  ((p&&p.ex)||[]).forEach(e=>{exRisk(e[0]).forEach(t=>{
+    if(pains.includes(t))s-=2;
+    if(t==="impact"&&pains.includes("genoux"))s-=1;
+    if(t==="hiit"&&asth)s-=2;
+    if(t==="hiit"&&cardio)s-=1})});
+  return s}
+/* Pénalité (négative) ou bonus (positif) par défi du jour : généralise la règle « dos → etire-dos ». Table complète en Tâche 3. */
+function defiRiskPenalty(d,P){
+  if(!d||!d.id)return 0;
+  const pains=riskPains(P),diab=riskMals(P).includes("diabete");
+  const M={
+    "etire-dos":pains.includes("dos")?3:0,
+    "fentes":pains.includes("genoux")?-1:0,
+    "squats-rep":pains.includes("genoux")?-1:0,
+    "pompes-max":pains.includes("poignets")||pains.includes("epaules")?-1:0,
+    "street":pains.includes("poignets")||pains.includes("epaules")?-1:0,
+    "marche":diab?2:0,
+    "fibre":diab?1:0};
+  return M[d.id]||0}
 let curM=null,restSec=90,tm=null,tl=0;
 function toast(t,rec){toast.u=0;const e=$("toast");e.textContent=t;e.classList.toggle("rec",!!rec);e.hidden=false;e.classList.remove("in","out");void e.offsetWidth;e.classList.add("in");e.tabIndex=0;clearTimeout(toast.t);toast.t=setTimeout(()=>{e.classList.add("out");toast.t=setTimeout(()=>e.hidden=true,240)},rec?5000:3500)}
 function showT(){const e=$("tmv");if(!e)return;e.hidden=false;e.classList.toggle("warn",tl>0&&tl<=10);e.textContent=tl>0?Math.floor(tl/60)+":"+String(tl%60).padStart(2,"0"):"C’est reparti 💪";$("tstop").hidden=tl<=0&&restSec<=0}
@@ -730,13 +794,29 @@ function recProg(){
   const salle=(P.gear||[]).includes("salle");
   const street=((P.gear||[]).includes("traction")||(P.likes||[]).includes("street"));
   const k=S.sessions.filter(x=>x.d>=weekKey()).length;
-  if(!salle){
-    if(street)return P.exp==="a"?"Street workout · Avancé":P.exp==="i"?"Street workout · Intermédiaire":"Street workout · Débutant";
-    return "Sans équipement · Full body"}
-  if(time<=30)return "Full body · Rapide";
-  if(fq>=5)return ["Pousser (pecs, épaules, triceps)","Tirer (dos, biceps)","Jambes et fessiers"][k%3];
-  if(fq===4)return ["Haut du corps","Bas du corps"][k%2];
-  return time>=60?"Full body · Complet":"Full body · Standard"}
+  /* Sans douleur ni maladie déclarée : comportement historique inchangé */
+  if(!riskPains(P).length&&!riskMals(P).length){
+    if(!salle){
+      if(street)return P.exp==="a"?"Street workout · Avancé":P.exp==="i"?"Street workout · Intermédiaire":"Street workout · Débutant";
+      return "Sans équipement · Full body"}
+    if(time<=30)return "Full body · Rapide";
+    if(fq>=5)return ["Pousser (pecs, épaules, triceps)","Tirer (dos, biceps)","Jambes et fessiers"][k%3];
+    if(fq===4)return ["Haut du corps","Bas du corps"][k%2];
+    return time>=60?"Full body · Complet":"Full body · Standard"}
+  /* Douleurs ou maladies déclarées : on note TOUS les programmes (base durée + risque moteur) et on garde le meilleur. */
+  let best=-Infinity,bestName=null;
+  PGW.forEach(p=>{
+    const meta=PMETA[p.n]||{};
+    let sc=10-0.2*Math.abs((meta.min||time)-time);
+    if(fq>=5&&/^(Pousser|Tirer|Jambes et fessiers)/.test(p.n))sc+=2;
+    if(fq===4&&(/Haut du corps/.test(p.n)||/Bas du corps/.test(p.n)))sc+=2;
+    if(fq<=3&&/Full body/.test(p.n))sc+=2;
+    if(street&&meta.cat==="street")sc+=P.exp==="a"?3:P.exp==="i"?2:1;
+    if(!salle&&meta.cat==="muscu")sc-=100;
+    if(!salle&&!street&&meta.cat==="street")sc-=100;
+    sc+=progRiskScore(p,P);
+    if(sc>best){best=sc;bestName=p.n}});
+  return bestName||"Mobilité · Full body"}
 $("pgrecbtn").onclick=()=>{const n=recProg();S.pgSel=n;S.pgCat=(PMETA[n]||{}).cat||"all";save();renderPg();toast("✨ Séance recommandée : "+n)};
 document.querySelectorAll("#pgcat button").forEach(b=>b.onclick=()=>{S.pgCat=b.dataset.cat;save();renderPg()});
 /* ===== Programme perso ===== */
