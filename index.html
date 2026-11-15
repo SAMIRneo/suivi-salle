@@ -191,7 +191,6 @@ summary::-webkit-details-marker{display:none}
   <div class="card">
     <details>
       <summary>🎯 Ta pratique (matériel, envies, contraintes)</summary>
-      <div style="margin-top:8px"><label for="on_time">Temps disponible par séance</label><select id="on_time"><option value="30">≈ 30 min</option><option value="45" selected>≈ 45 min</option><option value="60">≈ 1 h</option><option value="75">1 h et plus</option></select></div>
       <div style="margin-top:10px"><label>Matériel disponible (plusieurs choix possibles)</label><div class="chips" id="on_gear" style="margin-top:6px"><button type="button" data-v="salle">Salle de sport</button><button type="button" data-v="corps">Poids du corps</button><button type="button" data-v="halteres">Haltères</button><button type="button" data-v="elastiques">Élastiques</button><button type="button" data-v="traction">Barre de traction</button><button type="button" data-v="paralleles">Barres parallèles</button></div></div>
       <div style="margin-top:10px"><label>Où t'entraînes-tu ?</label><div class="chips" id="on_place" style="margin-top:6px"><button type="button" data-v="salle">Salle de sport</button><button type="button" data-v="maison">À la maison</button><button type="button" data-v="parc">Parc / extérieur</button><button type="button" data-v="street">Aire de street workout</button></div></div>
       <div style="margin-top:10px"><label>Tu aimes particulièrement (plusieurs choix)</label><div class="chips" id="on_like" style="margin-top:6px"><button type="button" data-v="muscu">Musculation</button><button type="button" data-v="cardio">Cardio</button><button type="button" data-v="hiit">HIIT</button><button type="button" data-v="mobilite">Mobilité</button><button type="button" data-v="marche">Marche</button><button type="button" data-v="course">Course</button><button type="button" data-v="street">Street workout</button></div></div>
@@ -231,7 +230,7 @@ summary::-webkit-details-marker{display:none}
     <p class="hint" id="ddstreak" style="margin:8px 0 0"></p>
     <details style="margin-top:6px"><summary>Historique</summary><ul id="ddhist"></ul></details>
   </div>
-  <div class="card"><h2>🎯 Défi de la semaine</h2><p class="hint" id="chh" style="margin:0 0 8px"></p><ul id="chl"></ul></div>
+  <div class="card"><h2>🎯 Défi de la semaine</h2><p class="hint" id="chh" style="margin:0 0 8px"></p><ul id="chl"></ul><p class="hint" id="chladv" style="margin-top:4px"></p></div>
   <div class="card" id="plancard" hidden><h2>📋 Mon plan d'action</h2><div id="planout"></div><button class="btn alt" id="planedit">Modifier mon bilan</button></div>
   <div class="card" id="tipcard" hidden><h2>💡 Conseil du jour</h2><p id="tiptxt" style="margin:0"></p></div>
   <div class="card" id="santecard" hidden><h2>⚕️ Santé</h2><p id="santetxt" style="margin:0"></p><p class="hint" style="margin:8px 0 0">⚠️ Ces infos ne remplacent pas un avis médical : parle de ton programme à ton médecin.</p></div>
@@ -844,7 +843,7 @@ const perso=()=>S.perso=S.perso||[];
 let pbuild=null;
 function renderPerso(){
   $("mlist2").innerHTML=mlist().map(m=>`<option value="${esc(m)}">`).join("");
-  $("perso_l").innerHTML=(pbuild&&pbuild.ex.length?pbuild.ex.map((e,i)=>`<li><span><b>${esc(e[0])}</b><small>${esc(e[1])} · repos ${esc(e[2])}</small></span><span><button class="x" data-pdel="${i}" aria-label="Supprimer">×</button></span></li>`).join(""):'<p class="empty" style="margin:6px 0">Ajoute tes exercices un par un, puis enregistre le programme.</p>')
+  $("perso_l").innerHTML=(pbuild&&pbuild.ex.length?pbuild.ex.map((e,i)=>`<li><span><b>${esc(e[0])}</b><small>${esc(e[1])} · repos ${esc(e[2])}</small></span><span><button class="x" data-pdel="${i}" aria-label="Supprimer">×</button></span></li>`).join(""):'<li class="empty" style="list-style:none;margin:6px 0">Ajoute tes exercices un par un, puis enregistre le programme.</li>')
    +(perso().length?'<li style="display:block;padding:10px 0 0"><small style="color:var(--mute);font-weight:700">Mes programmes enregistrés</small><div class="chips" style="margin-top:6px">'+perso().map(p=>`<button type="button" class="sc" data-puse="${esc(p.n)}">${esc(p.n)}</button><button class="x" data-pdelprog="${esc(p.n)}" aria-label="Supprimer ${esc(p.n)}">×</button>`).join("")+'</div></li>':"");
   $("perso_save").hidden=!(pbuild&&pbuild.ex.length)}
 $("perso_add").onclick=()=>{const n=$("perso_e").value.trim(),se=$("perso_s").value.trim()||"3×10";
@@ -901,7 +900,7 @@ function renderSeance(){renderCh();renderPg();renderDaily();renderPlan();renderP
   if(S.bilanLast){$("tipcard").hidden=false;$("tiptxt").textContent=smartTip()}
   const d=$("d").value||today(),L=S.sessions.filter(x=>x.d===d).sort((a,b)=>a.t-b.t);
   $("dayT").textContent=d===today()?"Aujourd’hui":"Séance du "+fd(d);
-  $("dayL").innerHTML=L.length?L.map(x=>`<li><span><b>${esc(x.m)}</b><small>${fn(x.w)} kg × ${rp(x)}${x.rpe?" · RPE "+x.rpe:""}</small></span><span><button class="x" data-edit="${x.id}" aria-label="Modifier">✎</button><button class="x" data-del="${x.id}" aria-label="Supprimer">×</button></span></li>`).join(""):'<p class="empty">Rien d’enregistré ce jour-là.</p>';
+  $("dayL").innerHTML=L.length?L.map(x=>`<li><span><b>${esc(x.m)}</b><small>${fn(x.w)} kg × ${rp(x)}${x.rpe?" · RPE "+x.rpe:""}</small></span><span><button class="x" data-edit="${x.id}" aria-label="Modifier">✎</button><button class="x" data-del="${x.id}" aria-label="Supprimer">×</button></span></li>`).join(""):'<li class="empty" style="list-style:none">Rien d’enregistré ce jour-là.</li>';
   if(curM)upLast()}
 $("d").onchange=renderSeance;
 $("add").onclick=()=>{
@@ -934,7 +933,7 @@ function renderCh(){
   const lvl=(S.bilanLast&&S.bilanLast.lvl)||"";
   $("chh").innerHTML=lvl?`Niveau estimé : <b>${esc(lvl)}</b> · ${days} séance${days>1?"s":""} cette semaine`:"";
   const adv=(S.bilanLast&&S.bilanLast.adv)||ADV.forme;
-  $("chl").innerHTML=ch.map(c=>`<li style="display:block;margin-bottom:8px"><div style="display:flex;justify-content:space-between;gap:8px"><span>${c.done?"✅":"⬜"} ${c.t}</span><small>${c.d}</small></div><div class="bar${c.done?" done":""}" role="progressbar" aria-valuenow="${Math.round(c.p)}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(c.t)}"><i style="width:${Math.max(4,c.p)}%"></i></div></li>`).join("")+`<p class="hint" style="margin-top:4px">💡 ${esc(adv)}</p>`}
+  $("chl").innerHTML=ch.map(c=>`<li style="display:block;margin-bottom:8px"><div style="display:flex;justify-content:space-between;gap:8px"><span>${c.done?"✅":"⬜"} ${c.t}</span><small>${c.d}</small></div><div class="bar${c.done?" done":""}" role="progressbar" aria-valuenow="${Math.round(c.p)}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(c.t)}"><i style="width:${Math.max(4,c.p)}%"></i></div></li>`).join("");$("chladv").innerHTML=`💡 ${esc(adv)}`}
 /* ===== Défi du jour (adaptatif : profil, fatigue, séances récentes, cycle) ===== */
 const DCAT={train:"💪 Entraînement",nutri:"🥗 Nutrition",reco:"🌙 Récupération",mob:"🧘 Mobilité",sommeil:"😴 Sommeil",cardio:"🏃 Cardio"};
 const DEFIS=[
@@ -998,7 +997,7 @@ function renderDaily(){
   $("ddok").classList.toggle("on",!!D.done);$("ddok").textContent=D.done?"✅ Défi réussi !":"✅ Fait";
   const st=D.streak||0;
   $("ddstreak").textContent=st?"🔥 Série : "+st+" jour"+(st>1?"s":"")+" de suite":"Coche « Fait » quand c'est réussi : ta série se compte toute seule.";
-  $("ddhist").innerHTML=D.hist.length?D.hist.slice(-7).reverse().map(h=>`<li style="padding:6px 0"><span>${h.ok?"✅":"➖"} <small>${esc(h.t)}</small></span><small style="display:inline">${fd(h.d)}</small></li>`).join(""):'<p class="empty">Tes défis réalisés apparaîtront ici.</p>'}
+  $("ddhist").innerHTML=D.hist.length?D.hist.slice(-7).reverse().map(h=>`<li style="padding:6px 0"><span>${h.ok?"✅":"➖"} <small>${esc(h.t)}</small></span><small style="display:inline">${fd(h.d)}</small></li>`).join(""):'<li class="empty" style="list-style:none">Tes défis réalisés apparaîtront ici.</li>'}
 $("ddok").onclick=()=>{const D=S.daily=S.daily||{},d=DEFIS.find(x=>x.id===D.id);if(!d)return;
   D.hist=D.hist||[];
   if(!D.done){D.done=1;D.streak=(D.streak||0)+1;D.hist.push({d:today(),id:d.id,t:d.t,ok:1});if(D.hist.length>30)D.hist=D.hist.slice(-30);save();renderDaily();toast("🏆 Défi réussi ! Série : "+D.streak+" jour"+(D.streak>1?"s":""))}
