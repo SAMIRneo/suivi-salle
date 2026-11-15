@@ -804,7 +804,7 @@ function recProg(){
   const mals=(P.maladies||[]).filter(x=>x&&x!=="aucune");
   if(mals.includes("grossesse"))return "Mobilité · Full body";
   const ci=S.cyc?cycInfo():null;
-  const fat=P.energy==="faible"||P.sleep==="faible"||(ci&&ci.i===3);
+  const fat=P.energy==="faible"||P.sleep==="faible"||(ci&&ci.i===3&&!ci.late);
   if(fat)return "Mobilité · Full body";
   const salle=(P.gear||[]).includes("salle");
   const street=((P.gear||[]).includes("traction")||(P.likes||[]).includes("street"));
@@ -966,7 +966,7 @@ function dailyCandidates(){
   const t=today(),last=(S.sessions.slice().sort((a,b)=>b.d.localeCompare(a.d))[0]||{}).d;
   const days=last?dn(t)-dn(last):99;
   const intense=!!last&&days<=1&&S.sessions.some(x=>x.d===last&&(x.rpe||0)>=8);
-  const ci=S.cyc?cycInfo():null,lut=!!ci&&ci.i===3;
+  const ci=S.cyc?cycInfo():null,lut=!!ci&&ci.i===3&&!ci.late;
   const fatigue=P.energy==="faible"||P.sleep==="faible"||intense||lut;
   const shown=D.shown||[],pains=P.pain||[];
   return DEFIS.map(d=>{
@@ -1337,7 +1337,7 @@ const PH=[
  {e:"🥚",n:"Ovulation",t:["Ce qui peut changer : forme et force au top pour beaucoup de personnes.","Bon moment pour tenter un record, avec un échauffement soigné : les signaux sur le risque de blessure autour de l'ovulation sont contradictoires entre études.","Reste attentive à la technique sur les charges lourdes."]},
  {e:"🌙",n:"Phase lutéale",t:["Ce qui peut changer : fatigue et RPE augmentés, sommeil moins bon, envies plus fortes.","Rétention d'eau jusqu'à 1 à 2 kg sur la balance (Carmichael 2021) : c'est de l'eau, pas du gras — ne change rien à ton plan.","Garde tes charges, réduis le volume si tu es fatiguée : la force reste là."]}];
 const CYCSCI=["<b>Force</b> : à hormone vérifiée, aucune différence de force entre phases (Colenso-Semple 2023). La méta-analyse McNulty 2020 (Sports Medicine) trouve un effet minuscule, sauf en tout début de cycle (légèrement moins performante).","<b>Entraîner en fonction du cycle ?</b> Les études sérieuses ne montrent pas de bénéfice prouvé à changer de programme selon la phase : le mieux est de garder le même programme et d'ajuster le volume au ressenti.","<b>Poids et mensurations</b> : la phase lutéale gonfle la rétention d'eau (jusqu'à ~2 kg) et peut augmenter le tour de taille. Pèse-toi en comparant la même phase d'un mois à l'autre.","<b>Blessures</b> : signaux contradictoires (risque de lésion du genou parfois plus élevé autour de l'ovulation dans certaines études, plus faible en lutéal dans d'autres ; muscles : pas de différence significative). Un bon échauffement reste ton meilleur bouclier.","<b>Repères physiologiques</b> : température au repos plus élevée en lutéal (+0,3 à 0,5 °C), dépense énergétique quasi stable, besoins en fer plus élevés à cause des règles (voir Nutrition)."];
-function cycInfo(d=today()){const c=S.cyc,st=c&&c.starts&&c.starts.filter(x=>x<=d).sort().pop();if(!st)return null;const cl=c.cl||28,pl=c.pl||5,n=(dn(d)-dn(st))%cl+1,ov=cl-14,i=n<=pl?0:n<ov-1?1:n<=ov+1?2:3;return{n,cl,i,ph:PH[i]}}
+function cycInfo(d=today()){const c=S.cyc,st=c&&c.starts&&c.starts.filter(x=>x<=d).sort().pop();if(!st)return null;const cl=c.cl||28,pl=c.pl||5,diff=dn(d)-dn(st),n=diff+1,late=diff>=cl,i=n<=pl?0:n<cl-14?1:n<=cl-12?2:3;return{n,cl,i,ph:PH[i],late}}
 const SYM=["Fatigue","Crampes","Ballonnements","Humeur basse","Envies de sucre","Maux de tête","Seins sensibles","Sommeil perturbé"];
 const PHN=[
  "🥗 Nutrition : privilégie des aliments rassasiants et riches en fer (viande maigre, lentilles, épinards) : les besoins en fer sont plus élevés à cause des règles. Si l'appétit monte, ne te prive pas.",
@@ -1345,28 +1345,33 @@ const PHN=[
  "🥗 Nutrition : rien de spécial à changer, garde tes repères habituels.",
  "🥗 Nutrition : l'appétit augmente souvent en phase lutéale. Autorise des portions un peu plus grandes d'aliments rassasiants (fibres, protéines) : pas de culpabilité à avoir, les envies sont hormonales."];
 const cycSym=(d=today())=>(S.cyc&&S.cyc.sym&&S.cyc.sym[d])||null;
-/* Phase du cycle pour n'importe quelle date (passée, du jour, future = prévision) */
-function cycDayInfo(d){const C=S.cyc;if(!C)return null;const cl=C.cl||28,pl=C.pl||5,sts=(C.starts||[]).sort();
-  if(!sts.length)return null;
-  const first=sts[0],diff=dn(d)-dn(first);
-  if(diff<0)return null;
-  const n=diff%cl+1,ov=cl-14,i=n<=pl?0:n<ov-1?1:n<=ov+1?2:3;
-  return{n,i,prev:diff<cl}}
+/* Phase du cycle pour n'importe quelle date (passée, du jour, future = prévision) — même base que cycInfo : dernier début ≤ date */
+function cycDayInfo(d=today()){const C=S.cyc;if(!C)return null;const cl=C.cl||28,pl=C.pl||5,st=(C.starts||[]).filter(x=>x<=d).sort().pop();
+  if(!st)return null;
+  const diff=dn(d)-dn(st),n=diff+1,late=diff>=cl,i=n<=pl?0:n<cl-14?1:n<=cl-12?2:3;
+  return{n,i,prev:n<=pl,late}}
 /* Calendrier mensuel façon Clue : phases passées + prévisions */
 function cycCalendar(){
   const C=S.cyc;if(!C||!(C.starts||[]).length)return"";
   const now=new Date(),y=now.getFullYear(),m=now.getMonth();
   const shift=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate();
   const COL=["background:#e5533d;color:#fff","background:var(--good-soft)","background:var(--acc-soft)","background:var(--corps-soft)"];
+  const cl=C.cl||28,pl=C.pl||5;
   let cells="";
   for(let i=0;i<shift;i++)cells+="<span></span>";
   for(let d=1;d<=days;d++){
     const ds=y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
-    const info=cycDayInfo(ds),isT=ds===today();
-    cells+=`<span style="display:flex;align-items:center;justify-content:center;height:30px;border-radius:8px;font-size:12px;font-weight:${isT?800:400};${info?COL[info.i]:""}${isT?";outline:2px solid var(--acc);outline-offset:-2px":""}">${d}</span>`}
-  const last=(C.starts||[]).sort().pop(),k=Math.floor((dn(today())-dn(last))/(C.cl||28));
+    const st=(C.starts||[]).filter(x=>x<=ds).sort().pop(),isT=ds===today();
+    let stl="";
+    if(st){const diff=dn(ds)-dn(st);
+      if(diff>=cl)stl="background:var(--corps-soft)"; /* au-delà d'un cycle complet : prévision approximative (jamais « règles ») */
+      else if(diff<pl)stl=COL[0];
+      else{const n=diff+1,i=n<cl-14?1:n<=cl-12?2:3;stl=COL[i]}}
+    cells+=`<span style="display:flex;align-items:center;justify-content:center;height:30px;border-radius:8px;font-size:12px;font-weight:${isT?800:400};${stl}${isT?";outline:2px solid var(--acc);outline-offset:-2px":""}">${d}</span>`}
+  const last=(C.starts||[]).slice().sort().pop(),k=Math.floor((dn(today())-dn(last))/(C.cl||28));
   const next=fd(new Date(Date.parse(last+"T12:00")+(k+1)*(C.cl||28)*864e5).toISOString().slice(0,10));
-  return `<h2 style="margin-top:14px">📅 Calendrier du mois</h2><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center">${["L","M","M","J","V","S","D"].map(x=>`<small style="color:var(--mute);font-weight:800">${x}</small>`).join("")}${cells}</div><p class="hint" style="margin-top:8px">🩸 règles · 🌱 folliculaire · 🥚 ovulation · 🌙 lutéale — les jours à venir sont des <b>prévisions</b> (approximatives : chaque cycle peut varier). Prochaines règles prévues vers le <b>${next}</b>.</p>`}
+  const late=dn(today())-dn(last)>=(C.cl||28);
+  return `<h2 style="margin-top:14px">📅 Calendrier du mois</h2><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center">${["L","M","M","J","V","S","D"].map(x=>`<small style="color:var(--mute);font-weight:800">${x}</small>`).join("")}${cells}</div><p class="hint" style="margin-top:8px">🩸 règles · 🌱 folliculaire · 🥚 ovulation · 🌙 lutéale — les jours à venir sont des <b>prévisions</b> (approximatives : chaque cycle peut varier). Prochaines règles prévues vers le <b>${next}</b>${late?" (ou plus tard si ton cycle dérape)":""}.</p>`}
 /* Séances conseillées selon la phase (inspiré des apps type Clue) */
 const CYCPH_EX=[
  {t:"🩸 Pendant les règles",tip:"Si tu es fatiguée ou douloureuse, la marche et la mobilité suffisent. Si tu te sens bien, entraîne-toi normalement.",ex:[["Mobilité · Full body","15 min de mobilité douce"],["Sans équipement · Full body","léger, sans forcer"],["Full body · Rapide","salle avec ~2/3 des charges"],["Sans équipement · Abdos et gainage","volume réduit"]]},
@@ -1375,7 +1380,7 @@ const CYCPH_EX=[
  {t:"🌙 Phase lutéale",tip:"Écoute ton corps : garde l'habitude, allège le volume si besoin — la force reste là.",ex:[["Mobilité · Full body","récupération"],["Sans équipement · Full body","modéré"],["Full body · Standard","volume réduit si fatiguée"]]}];
 function renderCyc(){const c=cycInfo(),C=S.cyc||{},st=(C.starts||[]).slice(-1)[0]||"",v=(C.ent||{})[st]||{},sd=cycSym();
  const symTxt=sd?`<p class="hint" style="margin:8px 0 0">Symptômes du jour : ${sd.s.length?esc(sd.s.join(", ")):"aucun"} · Douleurs : ${esc(sd.dl)}${sd.inb?" <b>(inhabituelles ou très fortes)</b>":""}</p>`:"";
- $("cyb").innerHTML=c?`<h2>Aujourd’hui : jour ${c.n} du cycle</h2><div style="font-size:1.3em;margin:6px 0 10px">${c.ph.e} ${c.ph.n}</div><div class="cbar"><i style="width:${Math.round(100*c.n/c.cl)}%"></i></div><ul>${c.ph.t.map(x=>`<li><span>${x}</span></li>`).join("")}</ul>${symTxt}<p class="hint" style="margin:8px 0 0">${PHN[c.i]}</p><p class="hint" style="margin:8px 0 0">💡 ${esc(smartTip())}</p><p class="hint">Repères généraux : chaque cycle est différent, écoute ton corps.</p>${cycCalendar()}`:'<h2>Cycle</h2><p class="hint">Renseigne le début de tes dernières règles ci-dessous pour voir ton jour de cycle et ta phase.</p>';
+ $("cyb").innerHTML=c?`<h2>Aujourd’hui : jour ${c.n} du cycle</h2>${c.late?`<p class="hint" style="margin:0 0 8px">🩸 Tes règles ont du retard par rapport à d'habitude (${c.n-1} jours depuis le dernier début). C'est fréquent — stress, voyage, cycle qui dérape. Note le jour où elles reviennent ; si ça se répète plusieurs mois, parle-en à un pro de santé.</p>`:""}<div style="font-size:1.3em;margin:6px 0 10px">${c.ph.e} ${c.ph.n}</div><div class="cbar"><i style="width:${Math.min(100,Math.round(100*c.n/c.cl))}%"></i></div><ul>${c.ph.t.map(x=>`<li><span>${x}</span></li>`).join("")}</ul>${symTxt}<p class="hint" style="margin:8px 0 0">${PHN[c.i]}</p><p class="hint" style="margin:8px 0 0">💡 ${esc(smartTip())}</p><p class="hint">Repères généraux : chaque cycle est différent, écoute ton corps.</p>${cycCalendar()}`:'<h2>Cycle</h2><p class="hint">Renseigne le début de tes dernières règles ci-dessous pour voir ton jour de cycle et ta phase.</p>';
  const row=(l,h)=>`<div style="margin-top:10px"><label>${l}</label>${h}</div>`;
  const myr=cycSym();
  $("cyf").innerHTML=row("Début des dernières règles",`<input id="cy_s" type="date" value="${esc(st)}">`)+row("Durée moyenne des règles (jours)",`<input id="cy_p" type="number" min="1" max="12" value="${C.pl||5}">`)+row("Durée moyenne du cycle (jours)",`<input id="cy_l" type="number" min="20" max="45" value="${C.cl||28}">`)+row("Intensité des règles",`<select id="cy_i">${opt(["légère","normale","abondante"],v.i||"normale")}</select>`)+row("Douleurs pendant les règles",`<select id="cy_d">${opt(["aucune","légères","modérées","fortes"],v.d||"aucune")}</select>`)+'<button class="btn" id="cy_ok">Enregistrer</button>'
@@ -1499,7 +1504,7 @@ function smartTips(){
   const fl=(S.flog||{})[t]||[],prot=fl.reduce((a,x)=>a+(x.prot||0),0);
   if(nutP&&prot&&prot<nutP*.6)out.push("Ton apport en protéines du jour semble faible ("+Math.round(prot)+" g sur "+nutP+" g visés) : ajoute une source de protéines à ton dîner.");
   if(P.snack==="souvent")out.push("Grignotage fréquent : garde des collations simples sous la main (fruit + yaourt, amandes) plutôt que des produits sucrés.");
-  if(ci&&ci.i===3)out.push("Tu es en phase lutéale : privilégie des aliments rassasiants et plus de récupération, et allège le volume si tu te sens fatiguée.");
+  if(ci&&ci.i===3&&!ci.late)out.push("Tu es en phase lutéale : privilégie des aliments rassasiants et plus de récupération, et allège le volume si tu te sens fatiguée.");
   if(sd&&(sd.dl==="fortes"||sd.inb||sd.s.includes("Crampes")))out.push("Tu as des douleurs signalées aujourd'hui : remplace la séance intense par de la mobilité ou une marche douce.");
   if(P.goal==="gras")out.push("Objectif perte de gras : garde tes charges et ajoute du cardio léger — le muscle protège ton métabolisme.");
   if(P.goal==="muscle")out.push("Objectif prise de muscle : vise "+Math.round((P.w||70)*1.8)+" g de protéines par jour et une répétition de plus chaque semaine.");
