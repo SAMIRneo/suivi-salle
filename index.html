@@ -747,19 +747,20 @@ function progRiskScore(p,P){
     if(t==="hiit"&&asth)s-=2;
     if(t==="hiit"&&cardio)s-=1})});
   return s}
-/* Pénalité (négative) ou bonus (positif) par défi du jour : généralise la règle « dos → etire-dos ». Table complète en Tâche 3. */
+/* Pénalité (négative) ou bonus (positif) par défi du jour, selon douleurs et maladies. Généralise l'ancienne règle « dos → etire-dos ». */
 function defiRiskPenalty(d,P){
   if(!d||!d.id)return 0;
-  const pains=riskPains(P),diab=riskMals(P).includes("diabete");
-  const M={
-    "etire-dos":pains.includes("dos")?3:0,
-    "fentes":pains.includes("genoux")?-1:0,
-    "squats-rep":pains.includes("genoux")?-1:0,
-    "pompes-max":pains.includes("poignets")||pains.includes("epaules")?-1:0,
-    "street":pains.includes("poignets")||pains.includes("epaules")?-1:0,
-    "marche":diab?2:0,
-    "fibre":diab?1:0};
-  return M[d.id]||0}
+  const pains=riskPains(P),mals=riskMals(P),has=m=>mals.includes(m);
+  let s=0;
+  if(pains.includes("genoux"))s+=({"fentes":-4,"squats-rep":-1,"mobilite-genoux":3,"marche-douce":1,"echauffement":1}[d.id]||0);
+  if(pains.includes("dos"))s+=({"etire-dos":3,"dorsaux":2,"gainage-soir":1,"fentes":-0.5,"squats-rep":-0.5}[d.id]||0);
+  if(pains.includes("epaules"))s+=({"pompes-max":-3,"street":-2,"mobilite-epaules":3}[d.id]||0);
+  if(pains.includes("poignets"))s+=({"pompes-max":-3,"street":-2}[d.id]||0);
+  if(has("asthme"))s+=({"respiration":1.5,"echauffement":2,"cardio-leger":0.5}[d.id]||0);
+  if(has("hypertension")||has("cardiaque"))s+=({"pompes-max":-2,"record":-1,"marche-douce":1.5,"respiration":1}[d.id]||0);
+  if(has("diabete"))s+=({"fibre":1.5,"marche":1,"sucre":1,"marche-douce":1}[d.id]||0);
+  if(has("grossesse"))s+=({"squats-rep":-2,"fentes":-2,"marche-douce":2}[d.id]||0);
+  return s}
 let curM=null,restSec=90,tm=null,tl=0;
 function toast(t,rec){toast.u=0;const e=$("toast");e.textContent=t;e.classList.toggle("rec",!!rec);e.hidden=false;e.classList.remove("in","out");void e.offsetWidth;e.classList.add("in");e.tabIndex=0;clearTimeout(toast.t);toast.t=setTimeout(()=>{e.classList.add("out");toast.t=setTimeout(()=>e.hidden=true,240)},rec?5000:3500)}
 function showT(){const e=$("tmv");if(!e)return;e.hidden=false;e.classList.toggle("warn",tl>0&&tl<=10);e.textContent=tl>0?Math.floor(tl/60)+":"+String(tl%60).padStart(2,"0"):"C’est reparti 💪";$("tstop").hidden=tl<=0&&restSec<=0}
@@ -941,7 +942,11 @@ const DEFIS=[
  {id:"street",c:"train",t:"Va sur une aire de street workout ou devant chez toi : pompes, dips sur une chaise et gainage, 20 minutes suffisent."},
  {id:"etire-soir",c:"mob",t:"Avant de dormir, fais 5 minutes d'étirements doux : ça aide le sommeil et la récupération."},
  {id:"repos-actif",c:"reco",t:"Journée sans séance ? Marche 15 minutes et étire-toi : la récupération fait partie de l'entraînement."},
- {id:"fibre",c:"nutri",t:"Ajoute une source de fibres à ton repas du soir : légumineuses, légumes ou pain complet."}];
+ {id:"fibre",c:"nutri",t:"Ajoute une source de fibres à ton repas du soir : légumineuses, légumes ou pain complet."},
+ {id:"mobilite-genoux",c:"mob",t:"Prends 5 minutes pour assouplir tes genoux en douceur : flexions lentes sans saut, cercles, amplitude confortable — jamais dans la douleur."},
+ {id:"mobilite-epaules",c:"mob",t:"Passe 5 minutes à dérouler tes épaules et ta nuque : rotations lentes, haussements doux, étirements sans forcer."},
+ {id:"marche-douce",c:"cardio",t:"Aujourd'hui, 15 à 20 minutes de marche tranquille sans essoufflement : le meilleur cardio doux qui existe."},
+ {id:"echauffement",c:"reco",t:"Avant ton effort du jour, échauffe-toi 10 minutes à allure très facile : ta respiration et tes muscles te remercierons."}];
 function dailyCandidates(){
   const P=S.profile||{},D=S.daily=S.daily||{};
   const t=today(),last=(S.sessions.slice().sort((a,b)=>b.d.localeCompare(a.d))[0]||{}).d;
@@ -960,7 +965,7 @@ function dailyCandidates(){
     if(P.stress==="fort"&&d.c==="reco")s+=1.6;
     if(P.goal==="gras"&&(d.c==="cardio"||d.c==="nutri"))s+=1;
     if(P.goal==="muscle"&&d.c==="train")s+=.6;
-    if(pains.includes("dos")&&d.id==="etire-dos")s+=3;
+    s+=defiRiskPenalty(d,P);
     if(((P.gear||[]).includes("street")||(P.likes||[]).includes("street"))&&d.id==="street")s+=1;
     if(shown.includes(d.id))s-=4.5;
     return{d,s:s+Math.random()*.7}}).sort((a,b)=>b.s-a.s)[0].d}
