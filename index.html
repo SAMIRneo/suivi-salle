@@ -78,6 +78,7 @@ li b{font-size:17px;font-weight:800}li small{color:var(--mute);display:block;fon
 [hidden]{display:none!important}
 .chips{display:flex;gap:8px;flex-wrap:wrap}.chips button{flex:1 1 44%;min-width:0;background:var(--soft);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:10px 8px;font:inherit;font-weight:700;cursor:pointer;min-height:44px;transition:all .15s}
 .chips button.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);box-shadow:0 4px 12px var(--acc-soft)}
+.rskbadge{display:inline-block;margin:4px 4px 0 0;padding:2px 8px;border-radius:999px;background:var(--danger-soft);color:var(--danger);font-size:11px;font-weight:800;white-space:nowrap}
 #logw .chips button{flex:0 0 auto;padding:0 14px;border-radius:12px}
 .tm{font-size:46px;font-weight:900;text-align:center;font-variant-numeric:tabular-nums;margin:6px 0 10px;letter-spacing:-1.5px;color:var(--sec,var(--acc))}
 .tm.warn{color:var(--acc)}
@@ -240,6 +241,7 @@ summary::-webkit-details-marker{display:none}
     <select id="pgp"></select>
     <p class="hint" id="pgi"></p>
     <div class="chips" id="pgl" style="flex-wrap:wrap;margin-top:10px"></div>
+    <p class="hint" id="pgalt" hidden style="margin-top:8px"></p>
     <details id="persoW" style="margin-top:12px"><summary>⭐ Mon programme perso</summary>
       <div style="margin-top:8px"><label for="perso_n">Nom du programme</label><input id="perso_n" placeholder="Mon programme jambes"></div>
       <div style="margin-top:8px"><label for="perso_e">Exercice</label><input id="perso_e" list="mlist2" placeholder="Nom de l'exercice"><datalist id="mlist2"></datalist></div>
@@ -761,6 +763,13 @@ function defiRiskPenalty(d,P){
   if(has("diabete"))s+=({"fibre":1.5,"marche":1,"sucre":1,"marche-douce":1}[d.id]||0);
   if(has("grossesse"))s+=({"squats-rep":-2,"fentes":-2,"marche-douce":2}[d.id]||0);
   return s}
+/* Alternatives douces par douleur déclarée : exercice → variante (affichée sous le programme en vue Séance). */
+const PAINLBL={genoux:"Genoux",dos:"Dos",epaules:"Épaules",poignets:"Poignets"};
+const PAINEALT={
+ genoux:{"Squats":"Demi-squats ou assis-debout sur une chaise","Squats au poids du corps":"Assis-debout sur une chaise","Squats sautés":"Squats sans saut, amplitude confortable","Pistol squats":"Squats pistol assistés","Fentes":"Pas plus profonds qu'où ça va bien, en tenant un support","Fentes alternées":"Amplitude réduite en tenant un mur","Fentes basses (hanches)":"Amplitude réduite, main sur un mur","Jumping jacks":"Step-out sans saut (low impact)","Corde à sauter (option)":"Marche rapide ou vélo","Presse à cuisses":"Charge légère, ne verrouille jamais les genoux","Leg extension":"Charge légère, 12 reps lentes","Smith machine":"Pieds plus avancés, charge légère"},
+ dos:{"Rowing assis":"Charge plus légère, dos bien droit","Relevés de jambes":"Genoux pliés, une jambe à la fois","Superman (dos)":"Bras ou jambes seulement","Smith machine":"Pieds avancés, amplitude réduite"},
+ epaules:{"Dips (barres parallèles)":"Amplitude réduite, buste penché","Dips lestés (barres parallèles)":"Dips assisté ou dips sur une chaise","Dips sur une chaise":"Genoux pliés, faible amplitude","Développé épaules (machine)":"Assis bien calé, charge légère","Développé couché (machine)":"Charge légère, coudes à 45°","Tractions (ou australiennes)":"Australiennes, buste plus vertical","Pompes déclinées":"Pompes standards","Progression muscle-up":"Tractions classiques"},
+ poignets:{"Pompes":"Pompes sur les genoux ou mains sur une table","Pompes déclinées":"Pompes standards ou genoux au sol","Pompes lestées":"Pompes standards","Pompes mains surélevées":"Mains sur une table, amplitude courte","Mountain climbers":"Version posée, sans saut","Progression muscle-up":"Tractions classiques","Corde à sauter (option)":"Vélo ou tapis"}};
 let curM=null,restSec=90,tm=null,tl=0;
 function toast(t,rec){toast.u=0;const e=$("toast");e.textContent=t;e.classList.toggle("rec",!!rec);e.hidden=false;e.classList.remove("in","out");void e.offsetWidth;e.classList.add("in");e.tabIndex=0;clearTimeout(toast.t);toast.t=setTimeout(()=>{e.classList.add("out");toast.t=setTimeout(()=>e.hidden=true,240)},rec?5000:3500)}
 function showT(){const e=$("tmv");if(!e)return;e.hidden=false;e.classList.toggle("warn",tl>0&&tl<=10);e.textContent=tl>0?Math.floor(tl/60)+":"+String(tl%60).padStart(2,"0"):"C’est reparti 💪";$("tstop").hidden=tl<=0&&restSec<=0}
@@ -783,7 +792,12 @@ function renderPg(){
   const p=PGW.concat(perso()).find(q=>q.n===S.pgSel),done=new Set(S.sessions.filter(x=>x.d===($("d").value||today())).map(x=>x.m));
   $("pgi").innerHTML=`<b>${p.d}</b> · ${pgEx(p).length} exercices · ${p.t}`;
   $("pgrec").textContent=PGR[fqOf()];
-  $("pgl").innerHTML=pgEx(p).map(e=>`<button type="button" data-pm="${esc(e[0])}" aria-label="${esc(e[0])}${done.has(e[0])?", fait aujourd’hui":""}"${done.has(e[0])?" class=\"pgdone\"":""}>${done.has(e[0])?"✓ ":""}${esc(e[0])}<small>${esc(e[1])} · repos ${esc(e[2])}</small></button>`).join("")}
+  const pains=riskPains(S.profile||{});
+  $("pgl").innerHTML=pgEx(p).map(e=>{const rb=exRisk(e[0]).filter(t=>pains.includes(t));
+    return `<button type="button" data-pm="${esc(e[0])}" aria-label="${esc(e[0])}${done.has(e[0])?", fait aujourd’hui":""}"${done.has(e[0])?" class=\"pgdone\"":""}>${done.has(e[0])?"✓ ":""}${esc(e[0])}${rb.map(t=>`<span class="rskbadge">⚠️ ${esc(PAINLBL[t]||t)}</span>`).join("")}<small>${esc(e[1])} · repos ${esc(e[2])}</small></button>`}).join("");
+  const alines=[];
+  pgEx(p).forEach(e=>pains.forEach(pt=>{const a=(PAINEALT[pt]||{})[e[0]];if(a)alines.push(`<span style="display:block;padding:2px 0">⚠️ <b>${esc(e[0])}</b> → ${esc(a)}</span>`)}));
+  $("pgalt").hidden=!alines.length;$("pgalt").innerHTML=alines.join("")}
 /* Séance recommandée selon profil, fatigue, matériel, fréquence et cycle */
 function recProg(){
   const P=S.profile||{},fq=fqOf(),time=P.time||45;
