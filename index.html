@@ -24,6 +24,8 @@
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1120;--card:#131c2e;--ink:#e6edf5;--mute:#8b9ab0;--line:#1f2a3d;--acc:#ff7340;--acc-soft:rgba(255,115,64,.2);--acc-ink:#0b1120;--good:#4ade80;--good-soft:rgba(74,222,128,.2);--good-ink:#4ade80;--danger:#f87171;--danger-soft:rgba(248,113,113,.18);--prot:#60a5fa;--prot-soft:rgba(96,165,250,.2);--gluc:#facc15;--gluc-soft:rgba(250,204,21,.2);--lip:#f472b6;--lip-soft:rgba(244,114,182,.2);--cardio:#22d3ee;--cardio-soft:rgba(34,211,238,.2);--corps:#a78bfa;--corps-soft:rgba(167,139,250,.2);--soft:rgba(255,255,255,.05);--shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px rgba(0,0,0,.4);color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#0b1120;--card:#131c2e;--ink:#e6edf5;--mute:#8b9ab0;--line:#1f2a3d;--acc:#ff7340;--acc-soft:rgba(255,115,64,.2);--acc-ink:#0b1120;--good:#4ade80;--good-soft:rgba(74,222,128,.2);--good-ink:#4ade80;--danger:#f87171;--danger-soft:rgba(248,113,113,.18);--prot:#60a5fa;--prot-soft:rgba(96,165,250,.2);--gluc:#facc15;--gluc-soft:rgba(250,204,21,.2);--lip:#f472b6;--lip-soft:rgba(244,114,182,.2);--cardio:#22d3ee;--cardio-soft:rgba(34,211,238,.2);--corps:#a78bfa;--corps-soft:rgba(167,139,250,.2);--soft:rgba(255,255,255,.05);--shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px rgba(0,0,0,.4);color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rskbadge{color:var(--danger)}}
+:root[data-theme="dark"] .rskbadge{color:var(--danger)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
@@ -78,7 +80,7 @@ li b{font-size:17px;font-weight:800}li small{color:var(--mute);display:block;fon
 [hidden]{display:none!important}
 .chips{display:flex;gap:8px;flex-wrap:wrap}.chips button{flex:1 1 44%;min-width:0;background:var(--soft);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:10px 8px;font:inherit;font-weight:700;cursor:pointer;min-height:44px;transition:all .15s}
 .chips button.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);box-shadow:0 4px 12px var(--acc-soft)}
-.rskbadge{display:inline-block;margin:4px 4px 0 0;padding:2px 8px;border-radius:999px;background:var(--danger-soft);color:var(--danger);font-size:11px;font-weight:800;white-space:nowrap}
+.rskbadge{display:inline-block;margin:4px 4px 0 0;padding:2px 8px;border-radius:999px;background:var(--danger-soft);color:#dc2626;font-size:11px;font-weight:800;white-space:nowrap}
 #logw .chips button{flex:0 0 auto;padding:0 14px;border-radius:12px}
 .tm{font-size:46px;font-weight:900;text-align:center;font-variant-numeric:tabular-nums;margin:6px 0 10px;letter-spacing:-1.5px;color:var(--sec,var(--acc))}
 .tm.warn{color:var(--acc)}
@@ -971,7 +973,7 @@ function dailyCandidates(){
   const intense=!!last&&days<=1&&S.sessions.some(x=>x.d===last&&(x.rpe||0)>=8);
   const ci=S.cyc?cycInfo():null,lut=!!ci&&ci.i===3&&!ci.late;
   const fatigue=P.energy==="faible"||P.sleep==="faible"||intense||lut;
-  const shown=D.shown||[],pains=P.pain||[];
+  const shown=D.shown||[];
   return DEFIS.map(d=>{
     let s=1;
     if(fatigue&&(d.c==="reco"||d.c==="mob"))s+=3;
