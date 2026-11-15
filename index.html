@@ -179,7 +179,7 @@ summary::-webkit-details-marker{display:none}
   </div>
   <div class="card" id="onb-practice" hidden>
     <details>
-      <summary>🎯 Ta pratique (matériel, envies, contraintes)</summary>
+      <summary>📊 Tes points de départ (facultatif)</summary>
       <p class="hint" style="margin-top:8px">Laisse vide ce que tu ne sais pas encore : tu pourras refaire ton bilan plus tard (Corps → Réglages).</p>
       <div class="row" style="margin-top:10px"><div><label for="on_qpu">Pompes max (rép.)</label><input id="on_qpu" type="number" inputmode="numeric"></div><div><label for="on_qtr">Tractions max (rép.)</label><input id="on_qtr" type="number" inputmode="numeric"></div></div>
       <div class="row" style="margin-top:10px"><div><label for="on_qgi">Gainage max (s)</label><input id="on_qgi" type="number" inputmode="numeric"></div><div><label for="on_qsq">Squat max (kg)</label><input id="on_qsq" type="number" inputmode="decimal" min="0"></div></div>
@@ -595,7 +595,10 @@ const EX={f:["Hip thrust (machine)","Kickback fessiers (poulie)","Abducteurs","A
 const TX={f:[["Hip thrust max","kg",1],["Squat au poids du corps","rép.",1]],h:[["Développé couché max","kg",1],["Squat max","kg",1]]};
 const MK={f:["Tour de taille","Hanches","Cuisse","Bras","Poitrine","Mollet"],h:["Tour de taille","Poitrine","Épaules","Bras","Cuisse","Mollet"],n:["Tour de taille","Hanches","Poitrine","Bras","Cuisse","Mollet"]};
 const gen=()=>(S.profile&&S.profile.g)||"n";
-function mlist(){return Array.from(new Set((EX[gen()]||[]).concat(S.machines)))}
+function mlist(){
+  const all=Array.from(new Set((EX[gen()]||[]).concat(S.machines)));
+  const use={};(S.sessions||[]).forEach(x=>{if(x&&x.m)use[x.m]=(use[x.m]||0)+1});
+  return all.slice().sort((a,b)=>(use[b]||0)-(use[a]||0))}
 function mens(){return S.mens=S.mens||[]}
 const mLast=k=>{const l=mens().filter(x=>x.k===k).sort((a,b)=>b.d.localeCompare(a.d)||b.t-a.t)[0];return l&&l.v};
 function renderMens(){
@@ -1006,7 +1009,8 @@ $("ca").innerHTML=CA.map(m=>`<option>${m}</option>`).join("");$("cd").value=toda
 function renderCardio(){
   const a=$("ca").value,jump=a===JUMP,W=C().filter(x=>x.d>=weekKey());
   $("ckw").hidden=$("cvr").hidden=jump;$("cjw").hidden=!jump;
-  $("cwk").innerHTML=`<div class="stat"><b>${Math.round(W.reduce((s,x)=>s+x.min,0))} min</b><span>Cardio cette semaine</span></div><div class="stat"><b>${fn(W.reduce((s,x)=>s+x.km,0))} km</b><span>Distance</span></div><div class="stat"><b>${W.reduce((s,x)=>s+x.j,0)}</b><span>Sauts</span></div>`;
+  const wk=W.reduce((s,x)=>s+(x.min||0),0),wd=W.reduce((s,x)=>s+(x.km||0),0),wj=W.reduce((s,x)=>s+(x.j||0),0);
+  $("cwk").innerHTML=`<div class="stat"><b>${Math.round(wk)} min</b><span>Cardio cette semaine</span></div>${wd>0?`<div class="stat"><b>${fn(wd)} km</b><span>Distance</span></div>`:""}${wj>0?`<div class="stat"><b>${wj}</b><span>Sauts</span></div>`:""}`;
   const L=C().filter(x=>x.a===a).sort((p,q)=>q.d.localeCompare(p.d)||q.t-p.t),o=$("cbody");
   const cmals=riskMals(S.profile||{});
   const ctip=cmals.includes("asthme")?"Asthme : échauffe-toi 10 minutes à allure très facile et garde un cardio continu et modéré ; évite l'air froid sec.":(cmals.includes("hypertension")||cmals.includes("cardiaque"))?"Pendant le cardio, tu dois pouvoir parler : intensité modérée, pas d'apnée.":cmals.includes("diabete")?"Séance de plus d'une heure ? Garde une collation à proximité.":"";
@@ -1261,7 +1265,7 @@ function renderJournal(){
   }
   const marked=Object.keys(S.jlog=S.jlog||{}).filter(k=>S.jlog[k]).length;
   const days=Object.keys(flog()).length;
-  $("dailySummary").style.display="block";
+  $("dailySummary").style.display=days>0?"block":"none";
   $("loggedDays").textContent=marked;
   $("totalDays").textContent=days;
 }
