@@ -881,9 +881,9 @@ function renderSeance(){renderCh();renderPg();renderDaily();renderPlan();renderP
   const sc=$("santecard");
   if(sc){const mals=((S.profile||{}).maladies||[]).filter(x=>x&&x!=="aucune");
     if(mals.length){const NL={asthme:"Asthme : échauffe-toi progressivement, garde ton traitement à proximité, et évite l'air froid sec pendant l'effort si ça te déclenche.",
-      diabete:"Diabète : privilégie des séances progressives, avec des glucides disponibles autour de l'effort. Contrôle ta glycémie si ton médecin te le prescrit.",
-      hypertension:"Hypertension : évite les charges maximales et l'apnée (bloque ta respiration), privilégie des séances régulières et modérées avec des respirations libres.",
-      cardiaque:"Problème cardiaque : séances modérées et progressives uniquement, et n'entraîne-toi jamais seul(e) au début. L'avis de ton médecin est indispensable.",
+      diabete:"Diabète : privilégie des séances progressives, avec des glucides disponibles autour de l'effort. Si ta séance dépasse une heure, garde une collation à proximité. Contrôle ta glycémie si ton médecin te le prescrit.",
+      hypertension:"Hypertension : pendant le cardio tu dois pouvoir parler — pas d'apnée, pas de série à l'échec, charges maximales à éviter. Privilégie des séances régulières et modérées, avec des respirations libres.",
+      cardiaque:"Problème cardiaque : pendant l'effort tu dois pouvoir parler ; séances modérées et progressives uniquement, jamais de série à l'échec, et n'entraîne-toi jamais seul(e) au début. L'avis de ton médecin est indispensable.",
       epilepsie:"Épilepsie : entraîne-toi avec quelqu'un quand c'est possible, évite les exercices à risque de chute sans surveillance et signale-le aux encadrants de la salle.",
       thyroide:"Thyroïde : ton énergie peut varier d'un jour à l'autre — choisis la séance selon ton énergie du jour, pas selon le programme.",
       grossesse:"Grossesse : privilégie marche, mobilité et renforcement doux, évite les exercices sur le dos allongé tard dans la grossesse. Programme à faire valider par une sage-femme ou un gynécologue.",
@@ -1008,11 +1008,14 @@ function renderCardio(){
   $("ckw").hidden=$("cvr").hidden=jump;$("cjw").hidden=!jump;
   $("cwk").innerHTML=`<div class="stat"><b>${Math.round(W.reduce((s,x)=>s+x.min,0))} min</b><span>Cardio cette semaine</span></div><div class="stat"><b>${fn(W.reduce((s,x)=>s+x.km,0))} km</b><span>Distance</span></div><div class="stat"><b>${W.reduce((s,x)=>s+x.j,0)}</b><span>Sauts</span></div>`;
   const L=C().filter(x=>x.a===a).sort((p,q)=>q.d.localeCompare(p.d)||q.t-p.t),o=$("cbody");
-  if(!L.length){o.innerHTML=`<h2>${esc(a)}</h2><p class="empty">Tu n'as pas encore enregistré de séance. C'est normal pour démarrer !</p><button class="btn alt" style="margin-top:8px" onclick="location.href='\#seance'">Commencer une séance</button>`;return}
+  const cmals=riskMals(S.profile||{});
+  const ctip=cmals.includes("asthme")?"Asthme : échauffe-toi 10 minutes à allure très facile et garde un cardio continu et modéré ; évite l'air froid sec.":(cmals.includes("hypertension")||cmals.includes("cardiaque"))?"Pendant le cardio, tu dois pouvoir parler : intensité modérée, pas d'apnée.":cmals.includes("diabete")?"Séance de plus d'une heure ? Garde une collation à proximité.":"";
+  const chtm=ctip?`<p class="hint" style="margin:0 0 8px">${esc(ctip)}</p>`:"";
+  if(!L.length){o.innerHTML=`<h2>${esc(a)}</h2>${chtm}<p class="empty">Tu n'as pas encore enregistré de séance. C'est normal pour démarrer !</p><button class="btn alt" style="margin-top:8px" onclick="location.href='\#seance'">Commencer une séance</button>`;return}
   const by={};L.forEach(x=>{const y=jump?x.j:x.v;by[x.d]=Math.max(by[x.d]||0,y)});
   const pts=Object.keys(by).sort().map(k=>({x:k,y:by[k]})),mx=f=>Math.max(...L.map(f)),st=(b,s)=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`;
   const top=jump?st(mx(x=>x.j),"Record de sauts")+st(Math.round(mx(x=>x.j/x.min)),"Meilleur sauts/min")+st(L.reduce((s,x)=>s+x.j,0),"Total de sauts"):st(fn(mx(x=>x.v))+" km/h","Vitesse moy. record")+st(fn(mx(x=>x.km))+" km","Distance record")+st(fn(mx(x=>x.min))+" min","Durée record");
-  o.innerHTML=`<h2>${esc(a)}</h2><div class="stats">${top}</div><p class="hint" style="margin:0 0 4px">${jump?"Sauts par séance":"Vitesse moyenne (km/h)"}</p>${chart(pts)}${!jump&&mx(x=>x.vm)>0?`<p class="hint">Vitesse max atteinte : <b>${fn(mx(x=>x.vm))} km/h</b></p>`:""}`+
+  o.innerHTML=`<h2>${esc(a)}</h2>${chtm}<div class="stats">${top}</div><p class="hint" style="margin:0 0 4px">${jump?"Sauts par séance":"Vitesse moyenne (km/h)"}</p>${chart(pts)}${!jump&&mx(x=>x.vm)>0?`<p class="hint">Vitesse max atteinte : <b>${fn(mx(x=>x.vm))} km/h</b></p>`:""}`+
   `<ul style="margin-top:10px">${L.slice(0,12).map(x=>`<li><span><b>${jump?x.j+" sauts":fn(x.km)+" km"}</b><small>${fn(x.min)} min, ${jump?Math.round(x.j/x.min)+" sauts/min":fn(x.v)+" km/h"+(x.vm?", pointe à "+fn(x.vm):"")}</small></span><span><small style="display:inline">${fd(x.d)}</small><button class="x" data-cdel="${x.id}" aria-label="Supprimer">×</button></span></li>`).join("")}</ul>`}
 $("ca").onchange=renderCardio;
 $("cadd").onclick=()=>{
